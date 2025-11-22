@@ -1,6 +1,6 @@
 // script.js
 
-// Simple DB wrapper (IndexedDB مع fallback لـ LocalStorage)
+// قاعدة بيانات بسيطة (IndexedDB مع fallback لـ LocalStorage)
 const DB_NAME = 'template-manager';
 const STORE = 'templates';
 let db;
@@ -60,7 +60,7 @@ const Storage = {
   }
 };
 
-// UI refs
+// عناصر الواجهة
 const templateList = document.getElementById('templateList');
 const htmlCode = document.getElementById('htmlCode');
 const cssCode = document.getElementById('cssCode');
@@ -115,6 +115,7 @@ function renderEffects(group='all') {
 }
 renderEffects();
 
+// فلترة المؤثرات
 document.querySelectorAll('.effects-filter .chip').forEach(ch => {
   ch.addEventListener('click', () => {
     document.querySelectorAll('.effects-filter .chip').forEach(c => c.classList.remove('active'));
@@ -123,7 +124,7 @@ document.querySelectorAll('.effects-filter .chip').forEach(ch => {
   });
 });
 
-// Templates list
+// تحديث القائمة
 async function refreshList() {
   const items = await Storage.all();
   templateList.innerHTML = '';
@@ -141,12 +142,14 @@ async function refreshList() {
     templateList.appendChild(li);
   });
 }
+
+// إنشاء قالب جديد
 document.getElementById('newTemplate').addEventListener('click', () => {
   currentTemplate = {
     id: id(),
     name: 'قالب جديد',
     tags: [],
-    html: '<div class="card">Hello Template</div>',
+    html: '<div class="card fx-bounce">Hello Template</div>',
     css: '.card{padding:16px;border-radius:12px;background:#0d1117;color:#e7efff}',
     js: 'console.log("Template ready")',
     effects: []
@@ -163,6 +166,7 @@ function bindEditor(tpl) {
   jsCode.value = tpl.js || '';
 }
 
+// فتح قالب
 templateList.addEventListener('click', async (e) => {
   const idOpen = e.target.dataset.open;
   if (!idOpen) return;
@@ -174,7 +178,7 @@ templateList.addEventListener('click', async (e) => {
   updatePreview();
 });
 
-// Save/Delete/Duplicate
+// حفظ/حذف/نسخ
 document.getElementById('saveTemplate').addEventListener('click', async () => {
   if (!currentTemplate) currentTemplate = { id: id() };
   currentTemplate.name = tplName.value.trim() || 'بدون عنوان';
@@ -202,7 +206,7 @@ document.getElementById('duplicateTemplate').addEventListener('click', async () 
   await refreshList();
 });
 
-// Apply effects
+// تطبيق المؤثرات
 document.getElementById('applyEffects').addEventListener('click', () => {
   if (!currentTemplate) return;
   const code = htmlCode.value;
@@ -218,7 +222,4 @@ effectsList.addEventListener('click', (e) => {
   if (!currentTemplate) return;
   currentTemplate.effects = Array.from(new Set([...(currentTemplate.effects || []), fx]));
   e.target.textContent = 'مُضاف ✓';
-  setTimeout(() => e.target.textContent = 'تطبيق', 800);
-});
-
-// Live preview (المس
+  set
