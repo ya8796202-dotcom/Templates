@@ -1,0 +1,89 @@
+/* style.css */
+
+/* Variables */
+:root {
+  --bg: #0b0f14;
+  --panel: #12161d;
+  --text: #e7efff;
+  --muted: #98a8c7;
+  --primary: #5cc8ff;
+  --success: #58d68d;
+  --danger: #ff6b6b;
+  --accent: #a06cff;
+  --border: #1f2630;
+}
+
+/* Base */
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background: radial-gradient(80% 80% at 50% 0%, #0b0f14 0%, #06080c 100%);
+  color: var(--text);
+}
+
+/* Layout */
+.app-header, .app-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; background: var(--panel); border-bottom: 1px solid var(--border);
+}
+.app-footer { border-top: 1px solid var(--border); }
+.grid {
+  display: grid; grid-template-columns: 280px 1fr 320px 1fr; gap: 12px; padding: 12px;
+}
+.panel {
+  background: var(--panel); border: 1px solid var(--border); border-radius: 12px; padding: 12px; min-height: 200px;
+}
+h1, h2 { margin: 8px 0 12px; }
+.list { list-style: none; margin: 0; padding: 0; }
+.list li {
+  padding: 8px 10px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px;
+  display: flex; align-items: center; justify-content: space-between; background: #0e131a;
+}
+
+/* Components */
+.btn {
+  border: 1px solid var(--border); background: #0d1117; color: var(--text);
+  padding: 8px 12px; border-radius: 10px; cursor: pointer; transition: transform .08s ease, box-shadow .2s;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(92,200,255,.12); }
+.btn.primary { border-color: var(--primary); color: var(--primary); }
+.btn.success { border-color: var(--success); color: var(--success); }
+.btn.danger { border-color: var(--danger); color: var(--danger); }
+.btn.install { border-color: var(--accent); color: var(--accent); }
+
+.tabs { display: flex; gap: 8px; margin-bottom: 8px; }
+.tab { background: transparent; border: 1px dashed var(--border); color: var(--muted); padding: 6px 10px; border-radius: 8px; cursor: pointer; }
+.tab.active { color: var(--text); border-style: solid; border-color: var(--accent); }
+
+.code {
+  width: 100%; min-height: 160px; background: #0b0f14; color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px; padding: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.meta label { display: block; margin: 8px 0; }
+.meta input {
+  width: 100%; background: #0b0f14; color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px; padding: 8px;
+}
+
+.preview { width: 100%; height: 320px; border: 1px solid var(--border); border-radius: 8px; background: #0b0f14; }
+
+/* Chips */
+.chip {
+  border: 1px solid var(--border); border-radius: 999px; padding: 6px 12px; background: #0d1117; color: var(--muted);
+  cursor: pointer; margin-right: 6px;
+}
+.chip.active { color: var(--text); border-color: var(--accent); }
+
+/* Utilities */
+.hidden { display: none; }
+
+/* Animations */
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(160,108,255, .35); }
+  50% { box-shadow: 0 0 0 12px rgba(160,108,255, .0); }
+  100% { box-shadow: 0 0 0 0 rgba(160,108,255, .0); }
+}
+.btn.install { animation: pulse 2.4s infinite; }
