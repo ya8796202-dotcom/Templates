@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>مدير القوالب | مؤثرات CSS</title>
+  <link rel="manifest" href="/Templates/manifest.json" />
+  <link rel="stylesheet" href="/Templates/style.css" />
+  <link rel="stylesheet" href="/Templates/effects.css" />
+</head>
+<body>
+  <header class="app-header">
+    <h1>مدير القوالب الديناميكي</h1>
+    <button id="installBtn" class="btn install">تثبيت التطبيق</button>
+    <div class="actions">
+      <button id="newTemplate" class="btn primary">قالب جديد</button>
+      <button id="exportData" class="btn">تصدير</button>
+      <label class="import-label">
+        استيراد <input type="file" id="importData" accept="application/json" hidden />
+      </label>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="panel templates">
+      <h2>القوالب</h2>
+      <ul id="templateList" class="list"></ul>
+    </section>
+
+    <section class="panel editor">
+      <h2>المحرر</h2>
+      <div class="tabs">
+        <button data-tab="html" class="tab active">HTML</button>
+        <button data-tab="css" class="tab">CSS</button>
+        <button data-tab="js" class="tab">JS</button>
+        <button data-tab="meta" class="tab">الخصائص</button>
+      </div>
+
+      <div class="editors">
+        <textarea id="htmlCode" class="code" placeholder="اكتب HTML هنا"></textarea>
+        <textarea id="cssCode" class="code hidden" placeholder="اكتب CSS هنا"></textarea>
+        <textarea id="jsCode" class="code hidden" placeholder="اكتب JS هنا"></textarea>
+        <div id="metaPanel" class="meta hidden">
+          <label>اسم القالب <input id="tplName" /></label>
+          <label>وسوم <input id="tplTags" placeholder="مثال: بطاقة, زر, هيدر" /></label>
+        </div>
+      </div>
+
+      <div class="editor-actions">
+        <button id="saveTemplate" class="btn success">حفظ</button>
+        <button id="deleteTemplate" class="btn danger">حذف</button>
+        <button id="duplicateTemplate" class="btn">نسخ</button>
+        <button id="applyEffects" class="btn">تطبيق المؤثرات</button>
+      </div>
+    </section>
+
+    <section class="panel effects">
+      <h2>مكتبة المؤثرات</h2>
+      <div class="effects-filter">
+        <button data-group="all" class="chip active">الكل</button>
+        <button data-group="animations" class="chip">Animations</button>
+        <button data-group="gradients" class="chip">Gradients</button>
+        <button data-group="shadows" class="chip">Shadows</button>
+      </div>
+      <ul id="effectsList" class="list"></ul>
+    </section>
+
+    <section class="panel preview">
+      <h2>المعاينة</h2>
+      <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin" class="preview"></iframe>
+    </section>
+  </main>
+
+  <footer class="app-footer">
+    <span>Local-first • Offline • قابل للتثبيت</span>
+  </footer>
+
+  <script src="/Templates/script.js"></script>
+</body>
+</html>
