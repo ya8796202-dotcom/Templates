@@ -3,81 +3,75 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>لالولي • منصة قوالب ومحرر مباشر PWA</title>
-  <link rel="manifest" href="./manifest.json">
-  <link rel="stylesheet" href="./styles.css">
+  <title>لالولي برو • محرر أكواد PWA</title>
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#10141f">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <img src="assets/logos/laloly.svg" alt="Laloly" />
-      <h1>لالولي</h1>
-      <span class="tag">PWA • Offline Ready</span>
+      <h1>لالولي برو</h1>
+      <span class="muted">محرر HTML/CSS/JS • أوفلاين</span>
     </div>
     <nav class="actions">
-      <button id="installBtn" class="btn">تثبيت التطبيق</button>
+      <button id="installBtn" class="btn">تثبيت</button>
       <button id="modeToggle" class="btn">الوضع الداكن</button>
-      <button id="downloadProject" class="btn">تحميل المشروع</button>
+      <button id="newFile" class="btn">ملف جديد</button>
+      <button id="exportProject" class="btn">تصدير</button>
+      <button id="importProject" class="btn">استيراد</button>
     </nav>
   </header>
 
-  <main class="grid">
-    <section class="panel templates">
-      <h2>مكتبة القوالب</h2>
-      <div id="templateList" class="cards"></div>
-      <div class="plugins">
-        <h3>إضافات جاهزة</h3>
-        <div class="plugin-list">
-          <button class="plugin-btn" data-plugin="pulse-button.css">زر نابض</button>
-          <button class="plugin-btn" data-plugin="gradient-bg.css">خلفية متدرجة</button>
-          <button class="plugin-btn" data-plugin="glass-card.css">بطاقة زجاجية</button>
-          <button class="plugin-btn" data-plugin="loader-bar.css">شريط تحميل</button>
-        </div>
+  <main class="layout">
+    <aside class="sidebar">
+      <h3>ملفات المشروع</h3>
+      <ul id="fileList" class="file-list"></ul>
+      <div class="snippets">
+        <h3>سنِبتس</h3>
+        <input id="snippetSearch" placeholder="ابحث..." />
+        <ul id="snippetList" class="snippet-list"></ul>
       </div>
-      <div class="challenges">
-        <h3>تحديات اليوم</h3>
-        <ul id="challengeList"></ul>
+      <div class="settings">
+        <h3>إعدادات</h3>
+        <label>اسم المشروع
+          <input id="projectName" placeholder="مشروعي البرو">
+        </label>
+        <label>الخط
+          <input id="uiFont" placeholder="Cairo, Inter">
+        </label>
+        <label>اللون الأساسي
+          <input id="primaryColor" type="color" value="#6c5ce7">
+        </label>
+        <button id="resetProject" class="btn danger">إعادة</button>
+      </div>
+    </aside>
+
+    <section class="editor">
+      <div class="tabs" id="tabs"></div>
+      <textarea id="codeArea" class="code" spellcheck="false"></textarea>
+      <div class="statusbar">
+        <span id="status">جاهز</span>
+        <span id="cursorPos">Ln 1, Col 1</span>
+        <span id="fileMeta">UTF-8 • HTML</span>
       </div>
     </section>
 
-    <section class="panel editor">
-      <h2>المحرر المباشر</h2>
-      <div class="tabs">
-        <button class="tab active" data-target="htmlTab">HTML</button>
-        <button class="tab" data-target="cssTab">CSS</button>
-        <button class="tab" data-target="jsTab">JS</button>
-        <button class="tab" data-target="settingsTab">إعدادات</button>
+    <section class="preview">
+      <div class="preview-bar">
+        <button id="runBtn" class="btn primary">تشغيل</button>
+        <label><input type="checkbox" id="autoRun" checked> تشغيل تلقائي</label>
+        <button id="downloadFiles" class="btn">تنزيل الملفات</button>
       </div>
-      <div class="tab-content">
-        <textarea id="htmlTab" class="code" spellcheck="false"></textarea>
-        <textarea id="cssTab" class="code hidden" spellcheck="false"></textarea>
-        <textarea id="jsTab" class="code hidden" spellcheck="false"></textarea>
-        <div id="settingsTab" class="settings hidden">
-          <label>اسم المشروع <input id="projectName" placeholder="مشروعي الأول"></label>
-          <label>خط الواجهة <input id="uiFont" placeholder="Cairo, Inter"></label>
-          <label>اللون الأساسي <input id="primaryColor" type="color" value="#6c5ce7"></label>
-          <button id="resetProject" class="btn danger">إعادة المشروع</button>
-        </div>
-      </div>
-      <iframe id="preview" title="Live Preview"></iframe>
-    </section>
-
-    <section class="panel gallery">
-      <h2>معرض أعمالي</h2>
-      <div class="gallery-actions">
-        <button id="saveProject" class="btn primary">حفظ</button>
-        <button id="exportProject" class="btn">تصدير</button>
-        <button id="importProject" class="btn">استيراد</button>
-      </div>
-      <div id="projectCards" class="cards"></div>
+      <iframe id="previewFrame" title="Live Preview"></iframe>
+      <div id="console" class="console"></div>
     </section>
   </main>
 
   <footer class="footer">
-    <small>تم بناؤه بأسلوب يُشبه مشاريع PWA السابقة ويعمل أوفلاين جزئيًا</small>
+    <small class="muted">اختصارات: Ctrl/⌘+S حفظ • Ctrl/⌘+1/2/3 تبديل التبويبات • Ctrl/⌘+R تشغيل</small>
   </footer>
 
-  <script src="./app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
