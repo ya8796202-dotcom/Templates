@@ -1,0 +1,22 @@
+[
+  {
+    "id": "c1",
+    "title": "زر نابض قابل للتخصيص",
+    "brief": "ابني زر نابض يغيّر اللون حسب اختيارك",
+    "starter": {
+      "html": "<button class='pulse-btn' style='padding:14px 22px;border:none;background:var(--primary);color:#fff;border-radius:999px'>نبّضني</button>",
+      "css": ".pulse-btn{animation:pulse 2s infinite}",
+      "js": ""
+    }
+  },
+  {
+    "id": "c2",
+    "title": "بطاقة زجاجية لعرض منتج",
+    "brief": "استخدم تأثير الزجاج مع صورة وسعر",
+    "starter": {
+      "html": "<div class='glass card'><img src='https://picsum.photos/300/160' /><h4>منتج مميز</h4><p>399 جنيه</p></div>",
+      "css": ".glass{backdrop-filter: blur(12px); background: rgba(255,255,255,.08); padding:14px; border-radius:14px}",
+      "js": ""
+    }
+  }
+]
