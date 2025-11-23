@@ -1,63 +1,306 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Code Editor Pro</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Monaco Elegant Code Editor</title>
   <style>
-    body {
-      margin: 0;
-      display: flex;
-      height: 100vh;
-      font-family: Arial, sans-serif;
-      background: #1e1e1e;
-      color: #fff;
+    :root{
+      --bg:#f5f7fa;
+      --card:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --brand:#2563eb;
+      --border:#e5e7eb;
+      --shadow:0 6px 24px rgba(0,0,0,0.08);
+      --radius:14px;
     }
-    #editor {
-      width: 50%;
-      height: 100%;
-      padding: 10px;
-      box-sizing: border-box;
-      background: #252526;
-      border-right: 2px solid #333;
+    [data-theme="dark"]{
+      --bg:#0f172a;
+      --card:#111827;
+      --text:#e5e7eb;
+      --muted:#9ca3af;
+      --brand:#60a5fa;
+      --border:#1f2937;
+      --shadow:0 8px 28px rgba(0,0,0,0.4);
     }
-    textarea {
-      width: 100%;
-      height: 100%;
-      background: #1e1e1e;
-      color: #d4d4d4;
-      border: none;
-      outline: none;
-      resize: none;
-      font-size: 14px;
-      font-family: Consolas, monospace;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      display:flex;
+      min-height:100vh;
+      flex-direction:column;
     }
-    #preview {
-      width: 50%;
-      height: 100%;
-      background: #fff;
-      color: #000;
-      overflow: auto;
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:16px;
+      padding:16px 20px;
+      backdrop-filter:saturate(160%) blur(8px);
+      border-bottom:1px solid var(--border);
+      position:sticky; top:0; z-index:10;
+      background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(255,255,255,0.2));
+    }
+    [data-theme="dark"] header{
+      background:linear-gradient(180deg, rgba(17,24,39,0.7), rgba(17,24,39,0.3));
+    }
+    .brand{
+      display:flex;align-items:center;gap:12px;
+      font-weight:600; color:var(--text);
+    }
+    .dot{
+      width:14px;height:14px;border-radius:50%;
+      background:var(--brand); box-shadow:0 0 0 6px rgba(37,99,235,0.15);
+    }
+    .controls{
+      display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+    }
+    select, button{
+      appearance:none;
+      border:1px solid var(--border);
+      background:var(--card);
+      color:var(--text);
+      padding:10px 12px;
+      border-radius:10px;
+      font-size:14px;
+      transition:transform .08s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+    select:focus, button:focus{outline:none;border-color:var(--brand)}
+    button:hover, select:hover{box-shadow:var(--shadow)}
+    button:active{transform:scale(0.98)}
+    .btn-primary{
+      background:var(--brand);
+      color:#fff; border-color:transparent;
+    }
+    main{
+      display:grid;
+      grid-template-columns: 1fr 480px;
+      gap:18px;
+      padding:18px;
+      flex:1;
+    }
+    @media (max-width: 1000px){
+      main{grid-template-columns: 1fr}
+      .panel.preview{height:40vh}
+    }
+    .panel{
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:flex;flex-direction:column;
+      min-height:0;
+    }
+    .panel .title{
+      padding:12px 14px;
+      font-weight:600;
+      border-bottom:1px solid var(--border);
+    }
+    .editor-container{flex:1;min-height:0}
+    #editor{width:100%;height:100%}
+    .preview{
+      display:flex;flex-direction:column;
+    }
+    .preview .hint{
+      padding:10px 14px;color:var(--muted);
+      border-bottom:1px solid var(--border);
+      font-size:13px;
+    }
+    #preview{
+      flex:1; border:0; background:#fff;
+    }
+    [data-theme="dark"] #preview{background:#0b0b0b}
+    footer{
+      padding:10px 18px;
+      color:var(--muted);
+      border-top:1px solid var(--border);
+      font-size:12px;
     }
   </style>
 </head>
-<body>
-  <div id="editor">
-    <textarea id="code" placeholder="اكتب الكود هنا..."></textarea>
-  </div>
-  <iframe id="preview"></iframe>
+<body data-theme="light">
+  <header>
+    <div class="brand">
+      <span class="dot"></span>
+      <span>Elegant Code Editor</span>
+    </div>
+    <div class="controls">
+      <select id="language">
+        <option value="html">HTML</option>
+        <option value="css">CSS</option>
+        <option value="javascript">JavaScript</option>
+        <option value="typescript">TypeScript</option>
+        <option value="json">JSON</option>
+        <option value="markdown">Markdown</option>
+        <option value="xml">XML</option>
+        <option value="yaml">YAML</option>
+        <option value="java">Java</option>
+        <option value="csharp">C#</option>
+        <option value="python">Python</option>
+        <option value="cpp">C/C++</option>
+        <option value="php">PHP</option>
+        <option value="rust">Rust</option>
+        <option value="go">Go</option>
+        <option value="sql">SQL</option>
+        <option value="shell">Shell</option>
+      </select>
+      <select id="theme">
+        <option value="vs">Light</option>
+        <option value="vs-dark">Dark</option>
+        <option value="hc-black">High Contrast</option>
+      </select>
+      <button id="run" class="btn-primary">تشغيل المعاينة</button>
+      <button id="toggleTheme">تبديل واجهة الموقع</button>
+      <button id="download">تنزيل الملف</button>
+    </div>
+  </header>
 
+  <main>
+    <section class="panel">
+      <div class="title">المحرر</div>
+      <div class="editor-container">
+        <div id="editor"></div>
+      </div>
+    </section>
+
+    <section class="panel preview">
+      <div class="title">المعاينة</div>
+      <div class="hint">تعمل المعاينة عند لغات الويب (HTML/CSS/JS). للغات الأخرى يتم تنزيل الملف أو النسخ.</div>
+      <iframe id="preview" title="preview"></iframe>
+    </section>
+  </main>
+
+  <footer>
+    واجهة أنيقة مستوحاة من أسلوب مايكروسوفت. محرّك التحرير Monaco (نفس محرر VS Code).
+  </footer>
+
+  <!-- تحميل Monaco Editor (نمط AMD) -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.51.0/min/vs/loader.js"></script>
   <script>
-    const codeArea = document.getElementById("code");
-    const preview = document.getElementById("preview");
+    const samples = {
+      html: "<!DOCTYPE html>\n<html>\n<head>\n  <meta charset='UTF-8'>\n  <title>Preview</title>\n  <style>\n    body{font-family:Segoe UI;display:flex;min-height:100vh;align-items:center;justify-content:center;background:#f5f7fa}\n    h1{color:#2563eb}\n  </style>\n</head>\n<body>\n  <h1>مرحبا يا ياسر 👋</h1>\n  <p>هذا مثال HTML أنيق.</p>\n  <script>console.log('Hello from JS')<\/script>\n</body>\n</html>",
+      css: "/* اكتب CSS هنا */\nbody{font-family:Segoe UI;background:#f5f7fa}\n.main{max-width:720px;margin:40px auto;padding:24px;border-radius:12px;background:#fff}",
+      javascript: "// اكتب JavaScript هنا\nconsole.log('Hello, Monaco!');",
+      typescript: "// TypeScript مثال\nconst greet=(n:string)=>`Hello ${n}`;\nconsole.log(greet('Yasser'));",
+      json: "{\n  \"name\":\"Elegant Code\",\n  \"version\":\"1.0.0\"\n}",
+      markdown: "# محرر أنيق\n\n- يعتمد على Monaco\n- يدعم لغات متعددة",
+      xml: "<note>\n  <to>Yasser</to>\n  <message>Hello XML</message>\n</note>",
+      yaml: "name: Elegant Code\nversion: 1.0.0",
+      java: "public class Main {\n  public static void main(String[] args){\n    System.out.println(\"Hello Java\");\n  }\n}",
+      csharp: "using System;\nclass Program{static void Main(){Console.WriteLine(\"Hello C#\");}}",
+      python: "print('Hello Python')",
+      cpp: "#include <iostream>\nint main(){std::cout<<\"Hello C++\";return 0;}",
+      php: "<?php echo 'Hello PHP'; ?>",
+      rust: "fn main(){ println!(\"Hello Rust\"); }",
+      go: "package main\nimport \"fmt\"\nfunc main(){ fmt.Println(\"Hello Go\") }",
+      sql: "SELECT * FROM products LIMIT 10;",
+      shell: "echo \"Hello Shell\""
+    };
 
-    codeArea.addEventListener("input", () => {
-      preview.srcdoc = codeArea.value;
+    const langMap = {
+      html: 'html',
+      css: 'css',
+      javascript: 'javascript',
+      typescript: 'typescript',
+      json: 'json',
+      markdown: 'markdown',
+      xml: 'xml',
+      yaml: 'yaml',
+      java: 'java',
+      csharp: 'csharp',
+      python: 'python',
+      cpp: 'cpp',
+      php: 'php',
+      rust: 'rust',
+      go: 'go',
+      sql: 'sql',
+      shell: 'shell'
+    };
+
+    // إعداد محمل Monaco
+    require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.51.0/min/vs' } });
+    require(['vs/editor/editor.main'], function () {
+      const editor = monaco.editor.create(document.getElementById('editor'), {
+        value: samples.html,
+        language: 'html',
+        theme: 'vs',
+        automaticLayout: true,
+        fontSize: 14,
+        fontFamily: "Consolas, 'Segoe UI Mono', Menlo, monospace",
+        minimap: { enabled: true },
+        lineNumbers: 'on',
+        smoothScrolling: true
+      });
+
+      const languageSel = document.getElementById('language');
+      const themeSel = document.getElementById('theme');
+      const preview = document.getElementById('preview');
+      const runBtn = document.getElementById('run');
+      const toggleThemeBtn = document.getElementById('toggleTheme');
+      const downloadBtn = document.getElementById('download');
+      const root = document.body;
+
+      function setLanguage(lang){
+        const mLang = langMap[lang] || 'plaintext';
+        editor.setValue(samples[lang] || '');
+        monaco.editor.setModelLanguage(editor.getModel(), mLang);
+        // تحديث تلميح المعاينة
+        document.querySelector('.hint').textContent =
+          (lang==='html' || lang==='css' || lang==='javascript')
+          ? 'تعمل المعاينة عند لغات الويب (HTML/CSS/JS).'
+          : 'لا توجد معاينة لهذه اللغة، استخدم زر تنزيل الملف.';
+        // للـ CSS/JS نحقن ضمن قالب HTML بسيط عند التشغيل
+      }
+
+      function setTheme(theme){
+        monaco.editor.setTheme(theme);
+      }
+
+      languageSel.addEventListener('change', e => setLanguage(e.target.value));
+      themeSel.addEventListener('change', e => setTheme(e.target.value));
+
+      runBtn.addEventListener('click', () => {
+        const lang = languageSel.value;
+        const code = editor.getValue();
+        if(lang==='html'){
+          preview.srcdoc = code;
+        }else if(lang==='css'){
+          preview.srcdoc = `<!DOCTYPE html><html><head><style>${code}</style></head><body><div class="main"><h2>Preview CSS</h2><p>هذا معاينة CSS ضمن صفحة بسيطة.</p></div></body></html>`;
+        }else if(lang==='javascript'){
+          preview.srcdoc = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body><h2>Preview JS</h2><script>${code}<\/script></body></html>`;
+        }else{
+          // لغات غير الويب: نعرض رسالة بسيطة
+          preview.srcdoc = `<!DOCTYPE html><html><body style="font-family:Segoe UI;padding:18px"><h3>لا توجد معاينة لهذه اللغة</h3><p>استخدم زر تنزيل الملف للحصول على الكود.</p></body></html>`;
+        }
+      });
+
+      toggleThemeBtn.addEventListener('click', () => {
+        const isDark = document.body.getAttribute('data-theme') === 'dark';
+        document.body.setAttribute('data-theme', isDark ? 'light' : 'dark');
+      });
+
+      downloadBtn.addEventListener('click', () => {
+        const lang = languageSel.value;
+        const code = editor.getValue();
+        const extMap = {
+          html:'html', css:'css', javascript:'js', typescript:'ts', json:'json', markdown:'md',
+          xml:'xml', yaml:'yaml', java:'java', csharp:'cs', python:'py', cpp:'cpp', php:'php',
+          rust:'rs', go:'go', sql:'sql', shell:'sh'
+        };
+        const ext = extMap[lang] || 'txt';
+        const blob = new Blob([code], {type: 'text/plain;charset=utf-8'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `code.${ext}`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
     });
-
-    // مثال كود افتراضي عند الفتح
-    codeArea.value = "<h1 style='color:blue;text-align:center;'>Hello World!</h1>";
-    preview.srcdoc = codeArea.value;
   </script>
 </body>
 </html>
