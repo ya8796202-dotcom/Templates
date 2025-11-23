@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>محرر ومُعاينة الأكواد | PWA</title>
+    <link rel="stylesheet" href="style.css">
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2c3e50"> 
+    <meta name="description" content="محرر ومُعاينة أكواد HTML, CSS, JavaScript يعمل كـPWA.">
+    <link rel="icon" href="icons/icon-512x512.png" type="image/png">
+</head>
+<body>
+    <header>
+        <h1>Code Editor PWA</h1>
+    </header>
+
+    <main class="editor-container">
+        <div class="code-area">
+            <div class="editor-panel">
+                <h2>HTML</h2>
+                <textarea id="html-code" placeholder="اكتب كود HTML هنا..."></textarea>
+            </div>
+            <div class="editor-panel">
+                <h2>CSS</h2>
+                <textarea id="css-code" placeholder="اكتب كود CSS هنا..."></textarea>
+            </div>
+            <div class="editor-panel">
+                <h2>JavaScript</h2>
+                <textarea id="js-code" placeholder="اكتب كود JavaScript هنا..."></textarea>
+            </div>
+        </div>
+
+        <div class="preview-area">
+            <h2>المعاينة (Output)</h2>
+            <iframe id="preview-frame"></iframe>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // تسجيل الـService Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(reg => console.log('Service Worker: Registered'))
+                    .catch(err => console.log('Service Worker: Error during registration', err));
+            });
+        }
+    </script>
+</body>
+</html>
