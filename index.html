@@ -1,33 +1,42 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b1220"/>
-  <title>CodeStudio Pro — محرر الأكواد (Monaco)</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeStudio Pro</title>
 
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b1220">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!-- Monaco Editor Loader -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
+
+</head>
 <body>
+
+  <!-- Top Toolbar -->
   <header class="topbar">
     <div class="brand">CodeStudio Pro <span class="beta">PWA</span></div>
     <div class="actions">
       <button id="runBtn">عرض المعاينة</button>
-      <button id="downloadBtn">تحميل مشروع ZIP</button>
+      <button id="downloadBtn">تحميل HTML</button>
       <button id="installBtn" hidden>تثبيت التطبيق</button>
     </div>
   </header>
 
+  <!-- Main Layout -->
   <main class="container">
     <section class="editor-area">
       <div class="editor-top">
-        <div class="file-tabs" role="tablist" aria-label="Files">
+        <div class="file-tabs">
           <button class="file-tab" data-mode="html" aria-selected="true">index.html</button>
           <button class="file-tab" data-mode="css">styles.css</button>
           <button class="file-tab" data-mode="js">app.js</button>
         </div>
-
         <div id="editor" class="editor"></div>
       </div>
 
@@ -42,44 +51,18 @@
     تم التطوير بواسطة CodeStudio Pro • يعمل أوفلاين جزئياً كـ PWA
   </footer>
 
-  <!-- Monaco loader from CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
-
   <script>
-    // Initial files
     const files = {
-      html: {
-        language: 'html',
-        value: `<!doctype html>
+      html: { language: 'html', value: `<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>معاينة</title>
-</head>
-<body>
-  <h1>مرحبا في CodeStudio Pro</h1>
-  <p>جرب تعديل HTML, CSS, JS ثم اضغط "عرض المعاينة".</p>
-</body>
-</html>`
-      },
-
-      css: {
-        language: 'css',
-        value: `body { font-family: system-ui, sans-serif; padding:20px; background:#fff; color:#111 }
-h1{color:#1a73e8}`
-      },
-
-      js: {
-        language: 'javascript',
-        value: `console.log('Hello from preview');`
-      }
+<head><meta charset="utf-8"><title>معاينة</title></head>
+<body><h1>مرحبا في CodeStudio Pro</h1></body>
+</html>` },
+      css: { language: 'css', value: `body{font-family:system-ui,sans-serif;padding:20px;background:#fff;color:#111}h1{color:#1a73e8}` },
+      js: { language: 'javascript', value: `console.log('Hello from preview');` }
     };
 
-    // Monaco Loader
-    require.config({
-      paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }
-    });
-
+    require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }});
     require(['vs/editor/editor.main'], function () {
       monaco.editor.setTheme('vs-dark');
 
@@ -91,15 +74,15 @@ h1{color:#1a73e8}`
 
       const editor = monaco.editor.create(document.getElementById('editor'), {
         model: models.html,
-        automaticLayout: true,
-        minimap: { enabled: false },
-        fontSize: 14,
-        scrollBeyondLastLine: false
+        automaticLayout:true,
+        minimap:{enabled:false},
+        fontSize:14,
+        scrollBeyondLastLine:false
       });
 
-      document.querySelectorAll('.file-tab').forEach(btn => {
-        btn.addEventListener('click', () => {
-          document.querySelectorAll('.file-tab').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.file-tab').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          document.querySelectorAll('.file-tab').forEach(b=>b.classList.remove('active'));
           btn.classList.add('active');
           const mode = btn.dataset.mode;
           editor.setModel(models[mode]);
@@ -109,27 +92,17 @@ h1{color:#1a73e8}`
       document.querySelector('.file-tab[data-mode="html"]').classList.add('active');
 
       const previewFrame = document.getElementById('previewFrame');
-
-      document.getElementById('runBtn').addEventListener('click', () => {
+      document.getElementById('runBtn').addEventListener('click', ()=>{
         const html = models.html.getValue();
-        const css = '<style>' + models.css.getValue() + '</style>';
-        const js = '<script>' + models.js.getValue() + '<\\/script>';
+        const css = '<style>'+models.css.getValue()+'</style>';
+        const js = '<script>'+models.js.getValue()+'<\\/script>';
         const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
         doc.open();
-        doc.write(html + css + js);
+        doc.write(html+css+js);
         doc.close();
       });
 
-      ['html','css','js'].forEach(key=>{
-        const saved = localStorage.getItem('pro_' + key);
-        if (saved) models[key].setValue(saved);
-
-        models[key].onDidChangeContent(()=>{
-          localStorage.setItem('pro_' + key, models[key].getValue());
-        });
-      });
-
-      document.getElementById('downloadBtn').addEventListener('click', ()=> {
+      document.getElementById('downloadBtn').addEventListener('click', ()=>{
         const blob = new Blob([models.html.getValue()], {type:'text/html'});
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -139,24 +112,20 @@ h1{color:#1a73e8}`
       });
 
       let deferredPrompt;
-
-      window.addEventListener('beforeinstallprompt', (e) => {
+      window.addEventListener('beforeinstallprompt', (e)=>{
         e.preventDefault();
         deferredPrompt = e;
         document.getElementById('installBtn').hidden = false;
       });
-
       document.getElementById('installBtn').addEventListener('click', async ()=>{
-        if (!deferredPrompt) return;
+        if(!deferredPrompt) return;
         deferredPrompt.prompt();
         const choice = await deferredPrompt.userChoice;
         document.getElementById('installBtn').hidden = true;
       });
     });
-  </script>
 
-  <script>
-    if ('serviceWorker' in navigator) {
+    if('serviceWorker' in navigator){
       navigator.serviceWorker.register('sw.js').catch(console.error);
     }
   </script>
