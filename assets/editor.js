@@ -41,4 +41,132 @@ function createEditor(id, mode) {
     mode: `ace/mode/${mode}`,
     theme: 'ace/theme/one_dark',
     fontSize: parseInt(els.fontSize.value, 10),
-    tabSize
+    tabSize: 2,
+    useSoftTabs: true,
+    wrap: true,
+    showPrintMargin: false,
+    enableBasicAutocompletion: true,
+    enableLiveAutocompletion: true,
+    enableSnippets: true,
+  });
+  return ed;
+}
+
+function initEditors(initial) {
+  editors.html = createEditor('editor-html', 'html');
+  editors.css  = createEditor('editor-css',  'css');
+  editors.js   = createEditor('editor-js',   'javascript');
+
+  editors.html.setValue(initial.html, -1);
+  editors.css.setValue(initial.css, -1);
+  editors.js.setValue(initial.js, -1);
+}
+
+function setStatus(msg, type='info') {
+  els.status.textContent = msg;
+  if (type === 'ok') els.status.style.color = 'var(--ok)';
+  else if (type === 'warn') els.status.style.color = 'var(--warn)';
+  else els.status.style.color = 'var(--muted)';
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  els.panes[name].classList.add('active');
+  els.tabs.forEach(t => t.classList.toggle('active', t.dataset.target === name));
+}
+
+function saveState() {
+  const data = {
+    html: editors.html.getValue(),
+    css: editors.css.getValue(),
+    js: editors.js.getValue()
+  };
+  localStorage.setItem(stateKey, JSON.stringify(data));
+  setStatus('تم الحفظ محليًا ✔', 'ok');
+}
+
+function loadState() {
+  const raw = localStorage.getItem(stateKey);
+  if (!raw) { setStatus('لا توجد نسخة محفوظة', 'warn'); return; }
+  const data = JSON.parse(raw);
+  editors.html.setValue(data.html || '', -1);
+  editors.css.setValue(data.css || '', -1);
+  editors.js.setValue(data.js || '', -1);
+  setStatus('تم الاسترجاع', 'ok');
+}
+
+function buildDocument() {
+  const html = editors.html.getValue();
+  const css  = editors.css.getValue();
+  const js   = editors.js.getValue();
+  const finalDoc = `
+${html}
+<style>${css}</style>
+<script>${js}</script>
+`.trim();
+  return finalDoc;
+}
+
+function previewInPage() {
+  const doc = buildDocument();
+  sessionStorage.setItem('previewDocument', doc);
+  location.href = 'preview.html';
+}
+
+function downloadHTML() {
+  const doc = buildDocument();
+  const blob = new Blob([doc], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'project.html';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  setStatus('تم تنزيل الملف', 'ok');
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  els.btnTheme.textContent = `الوضع: ${isLight ? 'فاتح' : 'داكن'}`;
+  const theme = isLight ? 'ace/theme/chrome' : 'ace/theme/one_dark';
+  Object.values(editors).forEach(ed => ed.setTheme(theme));
+}
+
+function setFontSize() {
+  const size = parseInt(els.fontSize.value, 10);
+  Object.values(editors).forEach(ed => ed.setFontSize(size));
+}
+
+function cacheCdnForOffline() {
+  const urls = [
+    'https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min/ace.js',
+    'https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min/ext-language_tools.js',
+    'https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min/mode-html.js',
+    'https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min/mode-css.js',
+    'https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min/mode-javascript.js',
+    'https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min/theme-one_dark.js',
+    'https://cdn.jsdelivr.net/npm/ace-builds@1.32.3/src-min/theme-chrome.js',
+  ];
+  urls.forEach(u => fetch(u).catch(()=>{}));
+}
+
+// Events
+els.tabs.forEach(tab => {
+  tab.addEventListener('click', () => switchTab(tab.dataset.target));
+});
+els.btnSave.addEventListener('click', saveState);
+els.btnLoad.addEventListener('click', loadState);
+els.btnPreview.addEventListener('click', previewInPage);
+els.btnDownload.addEventListener('click', downloadHTML);
+els.btnTheme.addEventListener('click', toggleTheme);
+els.fontSize.addEventListener('change', setFontSize);
+
+// Init
+const stored = localStorage.getItem(stateKey);
+initEditors(stored ? JSON.parse(stored) : defaultFiles);
+switchTab('html');
+setStatus('جاهز');
+setFontSize();
+cacheCdnForOffline();
