@@ -2,124 +2,101 @@
 <html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Fluent Design Code Editor</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fluent Multi-Code Editor</title>
   <style>
-    :root {
-      --brand: #2563eb;
-      --bg: #f3f4f6;
-      --card: rgba(255,255,255,0.65); /* شفافية */
-      --text: #111827;
-      --border: rgba(255,255,255,0.3);
-      --radius: 14px;
-      --shadow: 0 8px 32px rgba(0,0,0,0.12);
-      --transition: all 0.35s ease;
-      --blur: 12px;
+    :root{
+      --brand:#2563eb;
+      --bg:#f3f4f6;
+      --card:rgba(255,255,255,0.65);
+      --text:#111827;
+      --border:rgba(255,255,255,0.35);
+      --radius:14px;
+      --shadow:0 8px 32px rgba(0,0,0,0.12);
+      --blur:12px;
+      --trans:all .35s ease;
     }
-    body[data-theme="dark"] {
-      --bg: #0f172a;
-      --card: rgba(17,24,39,0.55);
-      --text: #e5e7eb;
-      --border: rgba(255,255,255,0.15);
-      --brand: #60a5fa;
-      --shadow: 0 10px 36px rgba(0,0,0,0.35);
+    body[data-theme="dark"]{
+      --bg:#0f172a;
+      --card:rgba(17,24,39,0.55);
+      --text:#e5e7eb;
+      --border:rgba(255,255,255,0.15);
+      --brand:#60a5fa;
+      --shadow:0 10px 36px rgba(0,0,0,0.35);
     }
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', Tahoma, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      transition: var(--transition);
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:'Segoe UI', Tahoma, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      transition:var(--trans);
     }
-    header {
-      background: var(--card);
-      backdrop-filter: blur(var(--blur)) saturate(180%);
-      color: var(--text);
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-      box-shadow: var(--shadow);
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      border-bottom: 1px solid var(--border);
+    header{
+      background:var(--card);
+      color:var(--text);
+      backdrop-filter:blur(var(--blur)) saturate(180%);
+      border-bottom:1px solid var(--border);
+      box-shadow:var(--shadow);
+      padding:12px 16px;
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      position:sticky;top:0;z-index:10;
     }
-    .controls {
-      display: flex;
-      gap: 10px;
+    .brand{display:flex;align-items:center;gap:10px;font-weight:600}
+    .dot{width:12px;height:12px;border-radius:50%;background:var(--brand);box-shadow:0 0 0 6px rgba(37,99,235,.18)}
+    .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    select,button{
+      appearance:none;
+      background:var(--card);color:var(--text);
+      border:1px solid var(--border);
+      border-radius:10px;padding:8px 12px;font-size:14px;
+      transition:var(--trans);
+      backdrop-filter:blur(var(--blur));
+      cursor:pointer;
     }
-    select, button {
-      border: none;
-      border-radius: var(--radius);
-      padding: 8px 12px;
-      font-size: 14px;
-      font-family: 'Segoe UI';
-      cursor: pointer;
-      transition: var(--transition);
-      background: var(--card);
-      color: var(--text);
-      backdrop-filter: blur(var(--blur));
+    button{font-weight:600}
+    select:hover,button:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+    .tabs{
+      display:flex;gap:0; border-bottom:1px solid var(--border);
+      background:var(--card);backdrop-filter:blur(var(--blur));
     }
-    button {
-      font-weight: 600;
+    .tab{
+      flex:1;text-align:center;padding:10px;font-weight:600;cursor:pointer;
+      border-bottom:3px solid transparent;transition:var(--trans);
     }
-    button:hover {
-      background: var(--brand);
-      color: #fff;
-      transform: translateY(-2px);
-      box-shadow: var(--shadow);
+    .tab.active{border-bottom-color:var(--brand);background:rgba(255,255,255,0.3)}
+    main{
+      display:grid;grid-template-columns:1fr 1fr;gap:16px;padding:16px;flex:1;
+      opacity:1;transition:opacity .5s ease, transform .5s ease;
     }
-    main {
-      display: flex;
-      flex: 1;
-      gap: 16px;
-      padding: 16px;
-      opacity: 1;
-      transition: opacity 0.5s ease, transform 0.5s ease;
+    @media (max-width:1024px){main{grid-template-columns:1fr}}
+    body.fade main{opacity:0;transform:translateY(10px)}
+    .editor, .preview{
+      background:var(--card);
+      backdrop-filter:blur(var(--blur)) saturate(180%);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      overflow:hidden;min-height:0;transition:var(--trans);
     }
-    body.fade main {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    #editor, #preview {
-      flex: 1;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      transition: var(--transition);
-      background: var(--card);
-      backdrop-filter: blur(var(--blur)) saturate(180%);
-      border: 1px solid var(--border);
-    }
-    #editor {
-      font-size: 26px; /* خط افتراضي كبير */
-    }
-    #preview {
-      border: none;
-    }
-    #editor:hover, #preview:hover {
-      transform: scale(1.01);
-    }
+    .editor:hover, .preview:hover{transform:scale(1.01)}
+    .editor{display:none; height:60vh}
+    .editor.active{display:block}
+    .preview{display:flex;flex-direction:column}
+    .panel-title{padding:10px 12px;border-bottom:1px solid var(--border);font-weight:600}
+    iframe#preview{flex:1;border:0;background:#fff}
+    body[data-theme="dark"] iframe#preview{background:#0b0b0b}
+    footer{padding:10px 16px;color:#6b7280;border-top:1px solid var(--border);font-size:12px}
   </style>
 </head>
 <body data-theme="light">
   <header>
-    <span>Fluent Design Code Editor</span>
+    <div class="brand"><span class="dot"></span><span>Fluent Multi-Code Editor</span></div>
     <div class="controls">
-      <select id="language">
-        <option value="html">HTML</option>
-        <option value="css">CSS</option>
-        <option value="javascript">JavaScript</option>
-        <option value="java">Java</option>
-        <option value="python">Python</option>
-        <option value="csharp">C#</option>
-        <option value="cpp">C++</option>
-      </select>
-      <select id="fontSize">
+      <select id="fontSize" title="حجم الخط">
         <option value="18">18px</option>
         <option value="24">24px</option>
         <option value="26" selected>26px</option>
@@ -127,92 +104,174 @@
       </select>
       <button id="run">تشغيل المعاينة</button>
       <button id="toggleTheme">تبديل الوضع</button>
-      <button id="download">تنزيل الكود</button>
+      <button id="download">تنزيل صفحة HTML مركّبة</button>
     </div>
   </header>
+
+  <div class="tabs">
+    <div class="tab active" data-target="htmlEditor">HTML</div>
+    <div class="tab" data-target="cssEditor">CSS</div>
+    <div class="tab" data-target="jsEditor">JavaScript</div>
+  </div>
+
   <main>
-    <div id="editor"><h1>مرحبا يا ياسر 👋</h1></div>
-    <iframe id="preview"></iframe>
+    <section class="editor active">
+      <div class="panel-title">HTML</div>
+      <div id="htmlEditor" style="width:100%;height:calc(60vh - 42px)"></div>
+    </section>
+
+    <section class="editor">
+      <div class="panel-title">CSS</div>
+      <div id="cssEditor" style="width:100%;height:calc(60vh - 42px)"></div>
+    </section>
+
+    <section class="editor">
+      <div class="panel-title">JavaScript</div>
+      <div id="jsEditor" style="width:100%;height:calc(60vh - 42px)"></div>
+    </section>
+
+    <section class="preview">
+      <div class="panel-title">المعاينة</div>
+      <iframe id="preview" title="Preview"></iframe>
+    </section>
   </main>
 
-  <!-- تحميل Ace Editor -->
+  <footer>واجهة Fluent مع شفافية وأنيميشن. محرر: Ace Editor. يدعم دمج HTML + CSS + JS في معاينة واحدة.</footer>
+
+  <!-- Ace Editor -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js"></script>
   <script>
-    const editor = ace.edit("editor");
-    editor.setTheme("ace/theme/chrome"); // ثيم فاتح افتراضي
-    editor.session.setMode("ace/mode/html");
-    editor.setOptions({
-      fontSize: "26px",
-      showPrintMargin: false,
-      showGutter: true,
-      highlightActiveLine: true
+    // إنشاء محررات
+    const baseOptions = { fontSize: "26px", showPrintMargin: false, showGutter: true, highlightActiveLine: true };
+    const htmlEditor = ace.edit("htmlEditor");
+    htmlEditor.setTheme("ace/theme/chrome");
+    htmlEditor.session.setMode("ace/mode/html");
+    htmlEditor.setOptions(baseOptions);
+    htmlEditor.setValue(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Preview</title>
+</head>
+<body>
+  <div class="card">
+    <h1>مرحبا يا ياسر 👋</h1>
+    <p>اكتب HTML هنا.</p>
+  </div>
+</body>
+</html>`, -1);
+
+    const cssEditor = ace.edit("cssEditor");
+    cssEditor.setTheme("ace/theme/chrome");
+    cssEditor.session.setMode("ace/mode/css");
+    cssEditor.setOptions(baseOptions);
+    cssEditor.setValue(`:root{--brand:#2563eb}
+body{font-family:Segoe UI;margin:0;background:#f5f7fa}
+.card{max-width:720px;margin:40px auto;padding:24px;border-radius:16px;background:#fff;box-shadow:0 10px 28px rgba(0,0,0,.12)}
+h1{color:var(--brand);margin:0 0 10px}
+p{color:#374151}`, -1);
+
+    const jsEditor = ace.edit("jsEditor");
+    jsEditor.setTheme("ace/theme/chrome");
+    jsEditor.session.setMode("ace/mode/javascript");
+    jsEditor.setOptions(baseOptions);
+    jsEditor.setValue(`console.log("Hello from JS");
+document.addEventListener("DOMContentLoaded", ()=>{
+  const card=document.querySelector(".card");
+  if(card){ card.style.transition="transform .25s ease"; card.addEventListener("mouseenter",()=>card.style.transform="scale(1.02)"); card.addEventListener("mouseleave",()=>card.style.transform="scale(1)"); }
+});`, -1);
+
+    // تبويبات
+    const tabEls = document.querySelectorAll(".tab");
+    const editorSections = document.querySelectorAll(".editor");
+    tabEls.forEach((tab, idx) => {
+      tab.addEventListener("click", () => {
+        tabEls.forEach(t => t.classList.remove("active"));
+        editorSections.forEach(s => s.classList.remove("active"));
+        tab.classList.add("active");
+        editorSections[idx].classList.add("active");
+        // إعادة حساب حجم Ace
+        setTimeout(()=> {
+          htmlEditor.resize(); cssEditor.resize(); jsEditor.resize();
+        }, 50);
+      });
     });
 
+    // عناصر واجهة
     const preview = document.getElementById("preview");
     const runBtn = document.getElementById("run");
-    const langSel = document.getElementById("language");
     const toggleBtn = document.getElementById("toggleTheme");
     const fontSel = document.getElementById("fontSize");
     const downloadBtn = document.getElementById("download");
     const body = document.body;
 
-    // تغيير اللغة
-    langSel.addEventListener("change", () => {
-      const lang = langSel.value;
-      editor.session.setMode("ace/mode/" + lang);
-    });
-
-    // تشغيل المعاينة للغات الويب فقط
-    runBtn.addEventListener("click", () => {
-      const lang = langSel.value;
-      const code = editor.getValue();
-      if(lang === "html"){
-        preview.srcdoc = code;
-      } else if(lang === "css"){
-        preview.srcdoc = `<style>${code}</style><div style="padding:20px"><h2>معاينة CSS</h2></div>`;
-      } else if(lang === "javascript"){
-        preview.srcdoc = `<script>${code}<\/script><div style="padding:20px"><h2>معاينة JavaScript</h2></div>`;
-      } else {
-        preview.srcdoc = `<div style="padding:20px;font-family:Segoe UI"><h3>لا توجد معاينة لهذه اللغة (${lang})</h3><p>انسخ الكود وشغّله في بيئته المناسبة.</p></div>`;
+    // تشغيل المعاينة: دمج HTML + CSS + JS
+    function buildOutput(html, css, js){
+      // لو HTML يحتوي <html> ندمج داخله، وإلا نضعه داخل body
+      const hasHtmlTag = /<\s*html[\s>]/i.test(html);
+      if(hasHtmlTag){
+        // إدراج CSS داخل <head> و JS قبل </body>
+        let headInjected = html.replace(/<\s*head\s*>/i, `<head>\n<style>${css}</style>`);
+        if(headInjected === html){ // لا يوجد head
+          headInjected = html.replace(/<\s*html[^>]*>/i, (m)=> `${m}\n<head><style>${css}</style></head>`);
+        }
+        let jsInjected = headInjected.replace(/<\s*\/\s*body\s*>/i, `<script>${js}<\/script></body>`);
+        if(jsInjected === headInjected){ // لا يوجد body إغلاق
+          jsInjected += `\n<script>${js}<\/script>`;
+        }
+        return jsInjected;
+      }else{
+        return `<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><style>${css}</style></head>
+<body>
+${html}
+<script>${js}<\/script>
+</body></html>`;
       }
-    });
+    }
 
-    // تبديل الوضع (Light/Dark) مع أنيميشن Fade/Slide
+    function runPreview(){
+      const output = buildOutput(htmlEditor.getValue(), cssEditor.getValue(), jsEditor.getValue());
+      preview.srcdoc = output;
+    }
+    runBtn.addEventListener("click", runPreview);
+    // معاينة أولية
+    runPreview();
+
+    // تبديل الوضع مع أنيميشن
     toggleBtn.addEventListener("click", () => {
       body.classList.add("fade");
       setTimeout(() => {
         const isDark = body.getAttribute("data-theme") === "dark";
         body.setAttribute("data-theme", isDark ? "light" : "dark");
-        editor.setTheme(isDark ? "ace/theme/chrome" : "ace/theme/monokai");
+        const theme = isDark ? "ace/theme/chrome" : "ace/theme/monokai";
+        htmlEditor.setTheme(theme);
+        cssEditor.setTheme(theme);
+        jsEditor.setTheme(theme);
         body.classList.remove("fade");
       }, 400);
     });
 
-    // تغيير حجم الخط ديناميكيًا
+    // تغيير حجم الخط لجميع المحررات
     fontSel.addEventListener("change", () => {
       const size = fontSel.value + "px";
-      editor.setOptions({ fontSize: size });
+      htmlEditor.setOptions({ fontSize: size });
+      cssEditor.setOptions({ fontSize: size });
+      jsEditor.setOptions({ fontSize: size });
     });
 
-    // تنزيل الكود كملف
+    // تنزيل صفحة HTML مركّبة من الأكواد
     downloadBtn.addEventListener("click", () => {
-      const lang = langSel.value;
-      const code = editor.getValue();
-      const extMap = {
-        html:'html', css:'css', javascript:'js', java:'java', python:'py',
-        csharp:'cs', cpp:'cpp'
-      };
-      const ext = extMap[lang] || 'txt';
-      const blob = new Blob([code], {type:'text/plain;charset=utf-8'});
+      const output = buildOutput(htmlEditor.getValue(), cssEditor.getValue(), jsEditor.getValue());
+      const blob = new Blob([output], {type:'text/html;charset=utf-8'});
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
-      a.download = `code.${ext}`;
+      a.download = 'combined.html';
+      document.body.appendChild(a);
       a.click();
       URL.revokeObjectURL(a.href);
+      a.remove();
     });
-
-    // معاينة أولية
-    preview.srcdoc = editor.getValue();
   </script>
 </body>
 </html>
