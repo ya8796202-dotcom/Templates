@@ -1,134 +1,83 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeStudio Pro</title>
-
-  <!-- PWA Manifest -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>لالولي • منصة قوالب ومحرر مباشر PWA</title>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0b1220">
-
-  <!-- Styles -->
   <link rel="stylesheet" href="styles.css">
-
-  <!-- Monaco Editor Loader -->
-  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
-
+  <meta name="theme-color" content="#10141f">
 </head>
 <body>
-
-  <!-- Top Toolbar -->
   <header class="topbar">
-    <div class="brand">CodeStudio Pro <span class="beta">PWA</span></div>
-    <div class="actions">
-      <button id="runBtn">عرض المعاينة</button>
-      <button id="downloadBtn">تحميل HTML</button>
-      <button id="installBtn" hidden>تثبيت التطبيق</button>
+    <div class="brand">
+      <img src="assets/logos/laloly.svg" alt="Laloly" />
+      <h1>لالولي</h1>
+      <span class="tag">PWA • Offline Ready</span>
     </div>
+    <nav class="actions">
+      <button id="installBtn" class="btn">تثبيت التطبيق</button>
+      <button id="modeToggle" class="btn">الوضع الداكن</button>
+      <button id="downloadProject" class="btn">تحميل المشروع</button>
+    </nav>
   </header>
 
-  <!-- Main Layout -->
-  <main class="container">
-    <section class="editor-area">
-      <div class="editor-top">
-        <div class="file-tabs">
-          <button class="file-tab" data-mode="html" aria-selected="true">index.html</button>
-          <button class="file-tab" data-mode="css">styles.css</button>
-          <button class="file-tab" data-mode="js">app.js</button>
+  <main class="grid">
+    <section class="panel templates">
+      <h2>مكتبة القوالب</h2>
+      <div id="templateList" class="cards"></div>
+      <div class="plugins">
+        <h3>إضافات جاهزة</h3>
+        <div class="plugin-list">
+          <button class="plugin-btn" data-plugin="pulse-button.css">زر نابض</button>
+          <button class="plugin-btn" data-plugin="gradient-bg.css">خلفية متدرجة</button>
+          <button class="plugin-btn" data-plugin="glass-card.css">بطاقة زجاجية</button>
+          <button class="plugin-btn" data-plugin="loader-bar.css">شريط تحميل</button>
         </div>
-        <div id="editor" class="editor"></div>
       </div>
+      <div class="challenges">
+        <h3>تحديات اليوم</h3>
+        <ul id="challengeList"></ul>
+      </div>
+    </section>
 
-      <div class="preview">
-        <div class="preview-toolbar">المعاينة</div>
-        <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+    <section class="panel editor">
+      <h2>المحرر المباشر</h2>
+      <div class="tabs">
+        <button class="tab active" data-target="htmlTab">HTML</button>
+        <button class="tab" data-target="cssTab">CSS</button>
+        <button class="tab" data-target="jsTab">JS</button>
+        <button class="tab" data-target="settingsTab">إعدادات</button>
       </div>
+      <div class="tab-content">
+        <textarea id="htmlTab" class="code" spellcheck="false"></textarea>
+        <textarea id="cssTab" class="code hidden" spellcheck="false"></textarea>
+        <textarea id="jsTab" class="code hidden" spellcheck="false"></textarea>
+        <div id="settingsTab" class="settings hidden">
+          <label>اسم المشروع <input id="projectName" placeholder="مشروعي الأول"></label>
+          <label>خط الواجهة <input id="uiFont" placeholder="Cairo, Inter"></label>
+          <label>اللون الأساسي <input id="primaryColor" type="color" value="#6c5ce7"></label>
+          <button id="resetProject" class="btn danger">إعادة المشروع</button>
+        </div>
+      </div>
+      <iframe id="preview" title="Live Preview"></iframe>
+    </section>
+
+    <section class="panel gallery">
+      <h2>معرض أعمالي</h2>
+      <div class="gallery-actions">
+        <button id="saveProject" class="btn primary">حفظ</button>
+        <button id="exportProject" class="btn">تصدير</button>
+        <button id="importProject" class="btn">استيراد</button>
+      </div>
+      <div id="projectCards" class="cards"></div>
     </section>
   </main>
 
   <footer class="footer">
-    تم التطوير بواسطة CodeStudio Pro • يعمل أوفلاين جزئياً كـ PWA
+    <small>تم بناؤه بأسلوب يُشبه مشاريع PWA السابقة ويعمل أوفلاين جزئيًا</small>
   </footer>
 
-  <script>
-    const files = {
-      html: { language: 'html', value: `<!DOCTYPE html>
-<html>
-<head><meta charset="utf-8"><title>معاينة</title></head>
-<body><h1>مرحبا في CodeStudio Pro</h1></body>
-</html>` },
-      css: { language: 'css', value: `body{font-family:system-ui,sans-serif;padding:20px;background:#fff;color:#111}h1{color:#1a73e8}` },
-      js: { language: 'javascript', value: `console.log('Hello from preview');` }
-    };
-
-    require.config({ paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }});
-    require(['vs/editor/editor.main'], function () {
-      monaco.editor.setTheme('vs-dark');
-
-      const models = {
-        html: monaco.editor.createModel(files.html.value, files.html.language, monaco.Uri.parse('inmemory://model/index.html')),
-        css: monaco.editor.createModel(files.css.value, files.css.language, monaco.Uri.parse('inmemory://model/styles.css')),
-        js: monaco.editor.createModel(files.js.value, files.js.language, monaco.Uri.parse('inmemory://model/app.js'))
-      };
-
-      const editor = monaco.editor.create(document.getElementById('editor'), {
-        model: models.html,
-        automaticLayout:true,
-        minimap:{enabled:false},
-        fontSize:14,
-        scrollBeyondLastLine:false
-      });
-
-      document.querySelectorAll('.file-tab').forEach(btn=>{
-        btn.addEventListener('click', ()=>{
-          document.querySelectorAll('.file-tab').forEach(b=>b.classList.remove('active'));
-          btn.classList.add('active');
-          const mode = btn.dataset.mode;
-          editor.setModel(models[mode]);
-        });
-      });
-
-      document.querySelector('.file-tab[data-mode="html"]').classList.add('active');
-
-      const previewFrame = document.getElementById('previewFrame');
-      document.getElementById('runBtn').addEventListener('click', ()=>{
-        const html = models.html.getValue();
-        const css = '<style>'+models.css.getValue()+'</style>';
-        const js = '<script>'+models.js.getValue()+'<\\/script>';
-        const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
-        doc.open();
-        doc.write(html+css+js);
-        doc.close();
-      });
-
-      document.getElementById('downloadBtn').addEventListener('click', ()=>{
-        const blob = new Blob([models.html.getValue()], {type:'text/html'});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = 'index.html';
-        a.click();
-        URL.revokeObjectURL(a.href);
-      });
-
-      let deferredPrompt;
-      window.addEventListener('beforeinstallprompt', (e)=>{
-        e.preventDefault();
-        deferredPrompt = e;
-        document.getElementById('installBtn').hidden = false;
-      });
-      document.getElementById('installBtn').addEventListener('click', async ()=>{
-        if(!deferredPrompt) return;
-        deferredPrompt.prompt();
-        const choice = await deferredPrompt.userChoice;
-        document.getElementById('installBtn').hidden = true;
-      });
-    });
-
-    if('serviceWorker' in navigator){
-      navigator.serviceWorker.register('sw.js').catch(console.error);
-    }
-  </script>
-
+  <script src="app.js"></script>
 </body>
 </html>
