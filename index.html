@@ -1,77 +1,63 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>لالولي برو • محرر أكواد PWA</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#10141f">
-  <link rel="stylesheet" href="./styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Code Editor Pro</title>
+  <style>
+    body {
+      margin: 0;
+      display: flex;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+      background: #1e1e1e;
+      color: #fff;
+    }
+    #editor {
+      width: 50%;
+      height: 100%;
+      padding: 10px;
+      box-sizing: border-box;
+      background: #252526;
+      border-right: 2px solid #333;
+    }
+    textarea {
+      width: 100%;
+      height: 100%;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border: none;
+      outline: none;
+      resize: none;
+      font-size: 14px;
+      font-family: Consolas, monospace;
+    }
+    #preview {
+      width: 50%;
+      height: 100%;
+      background: #fff;
+      color: #000;
+      overflow: auto;
+    }
+  </style>
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <h1>لالولي برو</h1>
-      <span class="muted">محرر HTML/CSS/JS • أوفلاين</span>
-    </div>
-    <nav class="actions">
-      <button id="installBtn" class="btn">تثبيت</button>
-      <button id="modeToggle" class="btn">الوضع الداكن</button>
-      <button id="newFile" class="btn">ملف جديد</button>
-      <button id="exportProject" class="btn">تصدير</button>
-      <button id="importProject" class="btn">استيراد</button>
-    </nav>
-  </header>
+  <div id="editor">
+    <textarea id="code" placeholder="اكتب الكود هنا..."></textarea>
+  </div>
+  <iframe id="preview"></iframe>
 
-  <main class="layout">
-    <aside class="sidebar">
-      <h3>ملفات المشروع</h3>
-      <ul id="fileList" class="file-list"></ul>
-      <div class="snippets">
-        <h3>سنِبتس</h3>
-        <input id="snippetSearch" placeholder="ابحث..." />
-        <ul id="snippetList" class="snippet-list"></ul>
-      </div>
-      <div class="settings">
-        <h3>إعدادات</h3>
-        <label>اسم المشروع
-          <input id="projectName" placeholder="مشروعي البرو">
-        </label>
-        <label>الخط
-          <input id="uiFont" placeholder="Cairo, Inter">
-        </label>
-        <label>اللون الأساسي
-          <input id="primaryColor" type="color" value="#6c5ce7">
-        </label>
-        <button id="resetProject" class="btn danger">إعادة</button>
-      </div>
-    </aside>
+  <script>
+    const codeArea = document.getElementById("code");
+    const preview = document.getElementById("preview");
 
-    <section class="editor">
-      <div class="tabs" id="tabs"></div>
-      <textarea id="codeArea" class="code" spellcheck="false"></textarea>
-      <div class="statusbar">
-        <span id="status">جاهز</span>
-        <span id="cursorPos">Ln 1, Col 1</span>
-        <span id="fileMeta">UTF-8 • HTML</span>
-      </div>
-    </section>
+    codeArea.addEventListener("input", () => {
+      preview.srcdoc = codeArea.value;
+    });
 
-    <section class="preview">
-      <div class="preview-bar">
-        <button id="runBtn" class="btn primary">تشغيل</button>
-        <label><input type="checkbox" id="autoRun" checked> تشغيل تلقائي</label>
-        <button id="downloadFiles" class="btn">تنزيل الملفات</button>
-      </div>
-      <iframe id="previewFrame" title="Live Preview"></iframe>
-      <div id="console" class="console"></div>
-    </section>
-  </main>
-
-  <footer class="footer">
-    <small class="muted">اختصارات: Ctrl/⌘+S حفظ • Ctrl/⌘+1/2/3 تبديل التبويبات • Ctrl/⌘+R تشغيل</small>
-  </footer>
-
-  <script src="./app.js"></script>
+    // مثال كود افتراضي عند الفتح
+    codeArea.value = "<h1 style='color:blue;text-align:center;'>Hello World!</h1>";
+    preview.srcdoc = codeArea.value;
+  </script>
 </body>
 </html>
