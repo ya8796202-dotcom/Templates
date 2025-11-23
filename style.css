@@ -1,120 +1,129 @@
-/* Custom Reset */
-*, *::before, *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+:root{
+  --bg:#0b1220;
+  --card:#0f1724;
+  --muted:#9aa4b2;
+  --accent:#6ee7b7;
+  --radius:12px;
+  font-family: Inter, system-ui, "Segoe UI", Tahoma, Roboto, "Helvetica Neue", Arial;
 }
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background-color: #f4f7f6; /* لون خلفية فاتح */
-    color: #333;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+*{box-sizing:border-box}
+
+html,body{height:100%}
+
+body{
+  margin:0;
+  background: linear-gradient(180deg,#071026 0%, #0b1220 100%);
+  color:#e6eef6;
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
 }
 
-/* Header Styling */
-header {
-    background-color: #2c3e50; /* لون داكن احترافي */
-    color: #ecf0f1;
-    padding: 15px 20px;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:12px 18px;
+  background:linear-gradient(90deg, rgba(255,255,255,0.02), transparent);
+  border-bottom:1px solid rgba(255,255,255,0.03);
 }
 
-header h1 {
-    font-size: 1.8em;
+.brand{
+  font-weight:700; 
+  font-size:18px
 }
 
-/* Main Layout: Split View */
-.editor-container {
-    display: flex;
-    flex-grow: 1;
-    overflow: hidden; /* لمنع السكرول غير المرغوب فيه في العناصر الفرعية */
+.actions button{
+  background:transparent;
+  color:var(--accent);
+  border:1px solid rgba(110,231,183,0.12);
+  padding:8px 12px;
+  border-radius:10px;
+  margin-left:8px;
+  cursor:pointer;
 }
 
-/* Code Area (Editors) */
-.code-area {
-    display: flex;
-    flex-direction: column;
-    width: 50%; /* نصف الشاشة للمحررات */
-    border-inline-end: 2px solid #bdc3c7; /* فاصل بين المحررات والمعاينة */
+.container{
+  padding:16px; 
+  flex:1
 }
 
-.editor-panel {
-    flex: 1; /* جعل كل محرر يأخذ مساحة متساوية */
-    padding: 10px;
-    background-color: #282c34; /* خلفية داكنة لمنطقة الكود (احترافية) */
-    color: #abb2bf;
-    border-bottom: 1px solid #3e4451;
-    overflow: hidden; 
+.editor-area{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  height: calc(100vh - 170px);
 }
 
-.editor-panel h2 {
-    font-size: 1em;
-    margin-bottom: 5px;
-    color: #61afef; /* لون مميز للعناوين */
-    border-bottom: 1px solid #61afef;
-    padding-bottom: 3px;
+.editor-top{
+  background:var(--card);
+  border-radius:12px;
+  padding:8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  min-height:300px;
 }
 
-textarea {
-    width: 100%;
-    height: calc(100% - 30px); /* ارتفاع منطقة الكتابة بعد طرح ارتفاع العنوان */
-    resize: none;
-    border: none;
-    outline: none;
-    background-color: transparent;
-    color: #e6e6e6; /* لون فاتح للنص داخل المحرر */
-    font-family: 'Consolas', 'Courier New', monospace; /* خط أكواد */
-    font-size: 0.9em;
-    padding: 5px 0;
-    line-height: 1.5;
+.file-tabs{
+  display:flex; 
+  gap:8px; 
+  padding:6px
 }
 
-/* Preview Area */
-.preview-area {
-    width: 50%; /* نصف الشاشة للمعاينة */
-    padding: 10px;
-    background-color: #ffffff; /* خلفية بيضاء للمعانية */
-    display: flex;
-    flex-direction: column;
+.file-tab{
+  background:transparent; 
+  color:var(--muted); 
+  border:1px solid rgba(255,255,255,0.02); 
+  padding:8px 10px; 
+  border-radius:8px; 
+  cursor:pointer
 }
 
-.preview-area h2 {
-    font-size: 1em;
-    margin-bottom: 5px;
-    color: #2c3e50; 
+.file-tab.active{
+  background:rgba(110,231,183,0.06); 
+  color:var(--accent)
 }
 
-#preview-frame {
-    flex: 1;
-    width: 100%;
-    border: 1px solid #bdc3c7;
-    background-color: #fff;
+.editor{
+  height:100%; 
+  min-height:240px; 
+  border-radius:8px; 
+  overflow:hidden
 }
 
-/* Media Query for Mobile (Stacked View) */
-@media (max-width: 768px) {
-    .editor-container {
-        flex-direction: column; /* ترتيب المحررات والمعاينة عمودياً */
-    }
+.preview{
+  background:var(--card);
+  border-radius:12px;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  height:45%;
+}
 
-    .code-area, .preview-area {
-        width: 100%; /* جعلهم يأخذون عرض الشاشة كاملاً */
-        height: 50vh; /* تقسيم 50% لكل قسم في وضع الـPWA */
-    }
+.preview-toolbar{
+  padding:10px; 
+  border-bottom:1px solid rgba(255,255,255,0.03); 
+  color:var(--muted)
+}
 
-    .code-area {
-        height: 60vh; /* إعطاء المحررات مساحة أكبر في الموبايل */
-    }
-    
-    .editor-panel {
-        height: 33.33%; /* تقسيم المحررات الثلاثة على ثلث الشاشة لكل منها */
-    }
+.preview iframe{
+  flex:1; 
+  width:100%; 
+  border:0; 
+  background:white
+}
 
-    .preview-area {
-        height: 40vh; 
-    }
+.footer{
+  padding:12px 18px; 
+  text-align:center; 
+  font-size:13px; 
+  color:var(--muted); 
+  border-top:1px solid rgba(255,255,255,0.02)
+}
+
+@media (max-width:900px){
+  .editor-top{min-height:200px}
+  .preview{height:40%}
 }
