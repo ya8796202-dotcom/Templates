@@ -1,269 +1,230 @@
-// PWA install prompt
-let deferredPrompt;
-const installBtn = document.getElementById('installBtn');
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  installBtn.style.display = 'inline-block';
-});
-installBtn?.addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-});
+// Mode toggle + install
+let deferredPrompt=null;
+const installBtn=document.getElementById('installBtn');
+window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredPrompt=e;installBtn.style.display='inline-block';});
+installBtn?.addEventListener('click',async()=>{if(!deferredPrompt)return;deferredPrompt.prompt();await deferredPrompt.userChoice;deferredPrompt=null;});
+const modeToggle=document.getElementById('modeToggle');
+const savedMode=localStorage.getItem('pro:mode')||'dark';
+document.documentElement.className=savedMode;
+modeToggle.textContent=savedMode==='dark'?'الوضع الفاتح':'الوضع الداكن';
+modeToggle.addEventListener('click',()=>{const next=document.documentElement.className==='dark'?'light':'dark';document.documentElement.className=next;modeToggle.textContent=next==='dark'?'الوضع الفاتح':'الوضع الداكن';localStorage.setItem('pro:mode',next);});
 
-// Mode toggle
-const modeToggle = document.getElementById('modeToggle');
-const savedMode = localStorage.getItem('laloly:mode') || 'dark';
-document.documentElement.className = savedMode;
-modeToggle.textContent = savedMode === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن';
-modeToggle.addEventListener('click', () => {
-  const next = document.documentElement.className === 'dark' ? 'light' : 'dark';
-  document.documentElement.className = next;
-  modeToggle.textContent = next === 'dark' ? 'الوضع الفاتح' : 'الوضع الداكن';
-  localStorage.setItem('laloly:mode', next);
-});
-
-// Tabs
-document.querySelectorAll('.tab').forEach(btn => {
-  btn.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.tab-content > *').forEach(el => el.classList.add('hidden'));
-    document.getElementById(btn.dataset.target).classList.remove('hidden');
-  });
-});
-
-// Editor elements
-const htmlEl = document.getElementById('htmlTab');
-const cssEl = document.getElementById('cssTab');
-const jsEl = document.getElementById('jsTab');
-const preview = document.getElementById('preview');
-
-const projectNameEl = document.getElementById('projectName');
-const uiFontEl = document.getElementById('uiFont');
-const primaryColorEl = document.getElementById('primaryColor');
-
-const defaultProject = {
-  name: 'مشروعي الأول',
-  html: '<div class="gradient-bg" style="min-height:100vh;display:grid;place-items:center;"><button class="pulse-btn" style="padding:14px 20px;border:none;background:#6c5ce7;color:#fff;font-size:18px;border-radius:999px;">زر نابض</button></div>',
-  css: 'body{font-family:Cairo,system-ui,sans-serif} .card{padding:12px;border-radius:10px}',
-  js: 'console.log("مرحبا من لالولي")',
-  uiFont: 'Cairo',
-  primary: '#6c5ce7'
+// Project model
+const DEFAULT_FILES=[
+  {name:'index.html',type:'html',content:'<main class="container"><h1>أهلاً يا ياسر</h1><p>ابدأ هنا</p></main>'},
+  {name:'styles.css',type:'css',content:'body{font-family:Cairo,system-ui,sans-serif}.container{padding:24px}'},
+  {name:'script.js',type:'js',content:'console.log("لالولي برو يعمل ✨")'}
+];
+const state={
+  projectName: localStorage.getItem('pro:name')||'مشروعي البرو',
+  files: JSON.parse(localStorage.getItem('pro:files')||'null') || DEFAULT_FILES,
+  activeIndex: 0,
+  autoRun: JSON.parse(localStorage.getItem('pro:autoRun')||'true'),
+  uiFont: localStorage.getItem('pro:font')||'Cairo',
+  primary: localStorage.getItem('pro:primary')||'#6c5ce7'
 };
 
-// Load/Save project to localStorage
-function loadProject() {
-  const data = JSON.parse(localStorage.getItem('laloly:project') || 'null') || defaultProject;
-  htmlEl.value = data.html;
-  cssEl.value = data.css;
-  jsEl.value = data.js;
-  projectNameEl.value = data.name;
-  uiFontEl.value = data.uiFont;
-  primaryColorEl.value = data.primary;
-  renderPreview();
-}
-function saveProject() {
-  const data = {
-    name: projectNameEl.value || 'مشروعي',
-    html: htmlEl.value,
-    css: cssEl.value,
-    js: jsEl.value,
-    uiFont: uiFontEl.value || 'Cairo',
-    primary: primaryColorEl.value || '#6c5ce7'
-  };
-  localStorage.setItem('laloly:project', JSON.stringify(data));
-  addToGallery(data);
-}
-document.getElementById('saveProject').addEventListener('click', saveProject);
-document.getElementById('resetProject').addEventListener('click', () => {
-  localStorage.removeItem('laloly:project');
-  loadProject();
-});
+// Elements
+const fileList=document.getElementById('fileList');
+const tabs=document.getElementById('tabs');
+const codeArea=document.getElementById('codeArea');
+const status=document.getElementById('status');
+const cursorPos=document.getElementById('cursorPos');
+const fileMeta=document.getElementById('fileMeta');
+const previewFrame=document.getElementById('previewFrame');
+const consoleEl=document.getElementById('console');
+const runBtn=document.getElementById('runBtn');
+const autoRunEl=document.getElementById('autoRun');
+const newFileBtn=document.getElementById('newFile');
+const projectNameEl=document.getElementById('projectName');
+const uiFontEl=document.getElementById('uiFont');
+const primaryColorEl=document.getElementById('primaryColor');
 
-// Live preview
-function renderPreview() {
-  const doc = `
-<!DOCTYPE html><html><head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<style> :root{ --primary:${primaryColorEl.value || '#6c5ce7'} } body{font-family:${uiFontEl.value || 'Cairo'}} ${cssEl.value} </style>
-</head><body>${htmlEl.value}
-<script> ${jsEl.value} </script>
+// Render file list and tabs
+function renderFiles(){
+  // List
+  fileList.innerHTML='';
+  state.files.forEach((f,i)=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<span>${f.name}</span>
+      <span>
+        <button class="btn" data-rename="${i}">إعادة تسمية</button>
+        <button class="btn danger" data-del="${i}">حذف</button>
+      </span>`;
+    if(i===state.activeIndex) li.classList.add('active');
+    li.addEventListener('click',()=>{state.activeIndex=i;renderEditor();});
+    li.querySelector('[data-rename]').addEventListener('click',(e)=>{e.stopPropagation();const nn=prompt('اسم جديد',f.name);if(nn){f.name=nn;persist();renderFiles();}});
+    li.querySelector('[data-del]').addEventListener('click',(e)=>{e.stopPropagation();if(state.files.length<=1) return alert('يجب أن يبقى ملف واحد على الأقل');state.files.splice(i,1);state.activeIndex=0;persist();renderFiles();renderEditor();});
+    fileList.appendChild(li);
+  });
+  // Tabs
+  tabs.innerHTML='';
+  state.files.forEach((f,i)=>{
+    const t=document.createElement('button');
+    t.className='tab'+(i===state.activeIndex?' active':'');
+    t.textContent=f.type.toUpperCase();
+    t.title=f.name;
+    t.addEventListener('click',()=>{state.activeIndex=i;renderEditor();});
+    tabs.appendChild(t);
+  });
+}
+
+// Editor and preview
+function renderEditor(){
+  const f=state.files[state.activeIndex];
+  codeArea.value=f.content;
+  fileMeta.textContent=`UTF-8 • ${f.type.toUpperCase()}`;
+  status.textContent=`تحرير: ${f.name}`;
+  updateCursor();
+  if(state.autoRun) debounceRun();
+}
+function buildDoc(){
+  const html = getFile('html')?.content || '';
+  const css  = getFile('css')?.content || '';
+  const js   = getFile('js')?.content || '';
+  const doc = `<!DOCTYPE html><html lang="ar"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>:root{--primary:${state.primary}} body{font-family:${state.uiFont}} ${css}</style>
+</head><body>${html}
+<script>
+const __log=(...args)=>parent.postMessage({type:'console',data:args},'*');
+['log','warn','error','info'].forEach(m=>{const _c=console[m];console[m]=function(){__log({level:m,args:[...arguments]});_c.apply(console,arguments)}}); 
+${js}
+</script>
 </body></html>`;
-  const blob = new Blob([doc], {type: 'text/html'});
-  preview.src = URL.createObjectURL(blob);
+  return doc;
 }
-[htmlEl, cssEl, jsEl, uiFontEl, primaryColorEl].forEach(el => el.addEventListener('input', renderPreview));
+function run(){
+  const blob=new Blob([buildDoc()],{type:'text/html'});
+  const url=URL.createObjectURL(blob);
+  previewFrame.src=url;
+  consoleEl.innerHTML='';
+  status.textContent='تم التشغيل';
+}
+let runTimer=null;
+function debounceRun(){clearTimeout(runTimer);runTimer=setTimeout(run,250);}
+function getFile(type){return state.files.find(f=>f.type===type);}
+function persist(){
+  localStorage.setItem('pro:name',state.projectName);
+  localStorage.setItem('pro:files',JSON.stringify(state.files));
+  localStorage.setItem('pro:autoRun',JSON.stringify(state.autoRun));
+  localStorage.setItem('pro:font',state.uiFont);
+  localStorage.setItem('pro:primary',state.primary);
+}
 
-// Download ZIP
-document.getElementById('downloadProject').addEventListener('click', async () => {
-  const files = {
-    'index.html': `<!DOCTYPE html><html lang="ar"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>${projectNameEl.value}</title><style>${cssEl.value}</style></head><body>${htmlEl.value}<script>${jsEl.value}</script></body></html>`
-  };
-  // Simple client-side zip using Blob (no external libs): provide .zip-like .laloly file
-  const content = JSON.stringify(files, null, 2);
-  const blob = new Blob([content], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${(projectNameEl.value || 'project').replace(/\s+/g,'_')}.laloly.json`;
-  a.click();
+// Inputs
+codeArea.addEventListener('input',()=>{
+  const f=state.files[state.activeIndex];
+  f.content=codeArea.value;
+  persist();
+  state.autoRun && debounceRun();
+});
+codeArea.addEventListener('keyup',updateCursor);
+codeArea.addEventListener('click',updateCursor);
+function updateCursor(){
+  const pos=codeArea.selectionStart;
+  const lines=codeArea.value.slice(0,pos).split('\n');
+  const ln=lines.length; const col=lines[lines.length-1].length+1;
+  cursorPos.textContent=`Ln ${ln}, Col ${col}`;
+}
+
+// Preview messages
+window.addEventListener('message',(e)=>{
+  const msg=e.data;
+  if(msg && msg.type==='console'){
+    const {level,args}=msg.data;
+    const line=document.createElement('div');
+    line.textContent=`[${level}] ${args.map(a=>typeof a==='object'?JSON.stringify(a):a).join(' ')}`;
+    consoleEl.appendChild(line);
+    consoleEl.scrollTop=consoleEl.scrollHeight;
+  }
 });
 
-// Import/Export
-document.getElementById('exportProject').addEventListener('click', () => {
-  const data = localStorage.getItem('laloly:project');
-  if (!data) return alert('لا يوجد مشروع محفوظ');
-  const blob = new Blob([data], {type:'application/json'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'laloly-project.json';
-  a.click();
+// Auto-run toggle
+autoRunEl.checked=state.autoRun;
+autoRunEl.addEventListener('change',()=>{state.autoRun=autoRunEl.checked;persist();});
+
+// Run button
+runBtn.addEventListener('click',run);
+
+// New file
+newFileBtn.addEventListener('click',()=>{
+  const name=prompt('اسم الملف (مثلاً: component.html أو utils.js)');
+  if(!name) return;
+  const ext=name.split('.').pop().toLowerCase();
+  const type = ext==='html'?'html':ext==='css'?'css':'js';
+  state.files.push({name,type,content:type==='html'?'<!-- ملف HTML جديد -->':type==='css'?'/* ملف CSS جديد */':'// ملف JS جديد'});
+  state.activeIndex=state.files.length-1;
+  persist(); renderFiles(); renderEditor();
 });
-document.getElementById('importProject').addEventListener('click', async () => {
-  const input = document.createElement('input');
-  input.type = 'file'; input.accept = '.json,application/json';
-  input.onchange = async () => {
-    const file = input.files[0];
-    const text = await file.text();
-    try {
-      const obj = JSON.parse(text);
-      localStorage.setItem('laloly:project', JSON.stringify(obj));
-      loadProject();
-    } catch(e) { alert('ملف غير صالح'); }
-  };
+
+// Export/Import
+document.getElementById('exportProject').addEventListener('click',()=>{
+  const data=JSON.stringify({name:state.projectName,files:state.files,meta:{font:state.uiFont,primary:state.primary}},null,2);
+  const blob=new Blob([data],{type:'application/json'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`${state.projectName.replace(/\s+/g,'_')}.laloly.pro.json`; a.click();
+});
+document.getElementById('importProject').addEventListener('click',()=>{
+  const input=document.createElement('input'); input.type='file'; input.accept='application/json,.json';
+  input.onchange=async()=>{const file=input.files[0];const txt=await file.text();try{const obj=JSON.parse(txt);state.projectName=obj.name||state.projectName;state.files=obj.files||state.files;if(obj.meta){state.uiFont=obj.meta.font||state.uiFont;state.primary=obj.meta.primary||state.primary;}persist();projectNameEl.value=state.projectName;uiFontEl.value=state.uiFont;primaryColorEl.value=state.primary;renderFiles();renderEditor();}catch(e){alert('ملف غير صالح');}};
   input.click();
 });
 
-// Templates loader
-async function loadTemplates() {
-  try {
-    const res = await fetch('data/templates.json');
-    const items = await res.json();
-    const list = document.getElementById('templateList');
-    list.innerHTML = '';
-    items.forEach(t => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = `
-        <div class="thumb">${t.thumbnail ? `<img src="${t.thumbnail}" alt="${t.name}" style="max-width:100%;max-height:88px">` : t.name}</div>
-        <h4>${t.name}</h4>
-        <p class="muted">${t.desc || ''}</p>
-        <div style="display:flex;gap:8px">
-          <button class="btn primary" data-id="${t.id}">استيراد</button>
-          <button class="btn" data-preview="${t.id}">معاينة</button>
-        </div>
-      `;
-      card.querySelector('[data-id]').addEventListener('click', async () => {
-        const tpl = await fetch(t.path).then(r => r.json());
-        htmlEl.value = tpl.html || '';
-        cssEl.value = tpl.css || '';
-        jsEl.value = tpl.js || '';
-        projectNameEl.value = t.name;
-        renderPreview();
-      });
-      card.querySelector('[data-preview]').addEventListener('click', async () => {
-        const tpl = await fetch(t.path).then(r => r.json());
-        const doc = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>${tpl.css || ''}</style></head><body>${tpl.html || ''}<script>${tpl.js || ''}</script></body></html>`;
-        const blob = new Blob([doc], {type:'text/html'});
-        preview.src = URL.createObjectURL(blob);
-      });
-      list.appendChild(card);
-    });
-  } catch (e) {
-    console.warn('فشل تحميل القوالب', e);
-  }
-}
-
-// Plugins injection
-document.querySelectorAll('.plugin-btn').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const plugin = btn.dataset.plugin;
-    const css = await fetch(`plugins/${plugin}`).then(r => r.text());
-    cssEl.value = cssEl.value + '\n/* Plugin: '+plugin+' */\n' + css;
-    renderPreview();
+// Download individual files
+document.getElementById('downloadFiles').addEventListener('click',()=>{
+  state.files.forEach(f=>{
+    const blob=new Blob([f.content],{type:'text/plain'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=f.name; a.click();
   });
 });
 
-// Challenges
-async function loadChallenges() {
-  const res = await fetch('data/challenges.json');
-  const items = await res.json();
-  const ul = document.getElementById('challengeList');
-  ul.innerHTML = '';
-  items.forEach(ch => {
-    const li = document.createElement('li');
-    li.innerHTML = `<strong>${ch.title}</strong> — ${ch.brief} <button class="btn" data-apply="${ch.id}">تطبيق</button>`;
-    li.querySelector('button').addEventListener('click', () => {
-      // Apply starter template for challenge
-      if (ch.starter) {
-        htmlEl.value = ch.starter.html || htmlEl.value;
-        cssEl.value = (cssEl.value + '\n' + (ch.starter.css || '')).trim();
-        jsEl.value = (jsEl.value + '\n' + (ch.starter.js || '')).trim();
-        renderPreview();
-      }
-      const done = JSON.parse(localStorage.getItem('laloly:challenges') || '[]');
-      if (!done.includes(ch.id)) {
-        done.push(ch.id);
-        localStorage.setItem('laloly:challenges', JSON.stringify(done));
-      }
+// Settings bind
+projectNameEl.value=state.projectName;
+uiFontEl.value=state.uiFont;
+primaryColorEl.value=state.primary;
+projectNameEl.addEventListener('input',()=>{state.projectName=projectNameEl.value;persist();});
+uiFontEl.addEventListener('input',()=>{state.uiFont=uiFontEl.value;persist(); state.autoRun && debounceRun();});
+primaryColorEl.addEventListener('input',()=>{state.primary=primaryColorEl.value;persist(); state.autoRun && debounceRun();});
+document.getElementById('resetProject').addEventListener('click',()=>{
+  if(!confirm('إعادة المشروع؟')) return;
+  state.projectName='مشروعي البرو'; state.files=[...DEFAULT_FILES]; state.activeIndex=0;
+  persist(); renderFiles(); renderEditor();
+});
+
+// Snippets
+const snippetList=document.getElementById('snippetList');
+const snippetSearch=document.getElementById('snippetSearch');
+async function loadSnippets(){
+  try{
+    const res=await fetch('data/snippets.json'); const all=await res.json();
+    renderSnippets(all);
+    snippetSearch.addEventListener('input',()=>{const q=snippetSearch.value.trim();renderSnippets(all.filter(s=>s.name.includes(q)||s.tags?.some(t=>t.includes(q))));});
+  }catch(e){snippetList.innerHTML='<li class="muted">لا توجد سنِبتس</li>';}
+}
+function renderSnippets(list){
+  snippetList.innerHTML='';
+  list.forEach(s=>{
+    const li=document.createElement('li');
+    li.innerHTML=`<strong>${s.name}</strong> <button class="btn" data-insert="${s.id}">إدراج</button>`;
+    li.querySelector('button').addEventListener('click',()=>{
+      const f=state.files[state.activeIndex];
+      f.content = f.content + '\n' + (s[state.files[state.activeIndex].type] || '');
+      persist(); renderEditor();
     });
-    ul.appendChild(li);
+    snippetList.appendChild(li);
   });
 }
 
-// Gallery cards
-function addToGallery(data) {
-  const gallery = JSON.parse(localStorage.getItem('laloly:gallery') || '[]');
-  const id = Date.now();
-  gallery.unshift({ id, name: data.name, date: new Date().toISOString() });
-  localStorage.setItem('laloly:gallery', JSON.stringify(gallery));
-  renderGallery();
-}
-function renderGallery() {
-  const wrap = document.getElementById('projectCards');
-  const gallery = JSON.parse(localStorage.getItem('laloly:gallery') || '[]');
-  wrap.innerHTML = '';
-  gallery.forEach(item => {
-    const card = document.createElement('div');
-    card.className = 'card';
-    card.innerHTML = `
-      <h4>${item.name}</h4>
-      <p class="muted">${new Date(item.date).toLocaleString('ar-EG')}</p>
-      <div style="display:flex;gap:8px">
-        <button class="btn primary" data-load="${item.id}">تحميل</button>
-        <button class="btn danger" data-del="${item.id}">حذف</button>
-      </div>
-    `;
-    card.querySelector('[data-load]').addEventListener('click', () => {
-      const project = JSON.parse(localStorage.getItem('laloly:project'));
-      if (project) {
-        loadProject();
-      } else {
-        alert('لا يوجد محتوى للمشروع الحالي، احفظ أولاً ثم ادخل للبطاقة.');
-      }
-    });
-    card.querySelector('[data-del]').addEventListener('click', () => {
-      const gallery2 = JSON.parse(localStorage.getItem('laloly:gallery') || '[]').filter(g => g.id !== item.id);
-      localStorage.setItem('laloly:gallery', JSON.stringify(gallery2));
-      renderGallery();
-    });
-    wrap.appendChild(card);
-  });
-}
+// Keyboard shortcuts
+document.addEventListener('keydown',(e)=>{
+  const meta=e.ctrlKey||e.metaKey;
+  if(meta && e.key.toLowerCase()==='s'){e.preventDefault();persist();status.textContent='تم الحفظ';}
+  if(meta && e.key.toLowerCase()==='r'){e.preventDefault();run();}
+  if(meta && ['1','2','3'].includes(e.key)){e.preventDefault();const map={'1':'html','2':'css','3':'js'};const idx=state.files.findIndex(f=>f.type===map[e.key]);if(idx>-1){state.activeIndex=idx;renderEditor();}}
+});
 
 // Init
-window.addEventListener('DOMContentLoaded', async () => {
-  loadProject();
-  await loadTemplates();
-  await loadChallenges();
-  renderGallery();
+window.addEventListener('DOMContentLoaded',()=>{
+  renderFiles(); renderEditor(); loadSnippets();
+  if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js');}
 });
-
-// Register SW
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('service-worker.js');
-  });
-}
