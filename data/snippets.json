@@ -1,0 +1,23 @@
+[
+  {
+    "id": "grid-basic",
+    "name": "CSS Grid أساسي",
+    "tags": ["layout","grid"],
+    "css": ".grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}"
+  },
+  {
+    "id": "navbar",
+    "name": "شريط تنقل",
+    "tags": ["ui","nav"],
+    "html": "<nav class='nav'><a href='#'>الرئيسية</a> | <a href='#'>منتجات</a> | <a href='#'>تواصل</a></nav>",
+    "css": ".nav{padding:12px;border-bottom:1px solid #ddd}"
+  },
+  {
+    "id": "modal",
+    "name": "مودال بسيط",
+    "tags": ["ui","modal"],
+    "html": "<div id='modal' class='modal'><div class='dialog'><h3>عنوان</h3><p>نص داخل المودال</p><button onclick='document.getElementById(\"modal\").remove()'>إغلاق</button></div></div>",
+    "css": ".modal{position:fixed;inset:0;background:rgba(0,0,0,.4);display:grid;place-items:center}.dialog{background:#fff;color:#000;padding:16px;border-radius:10px}",
+    "js": "console.log('مودال جاهز')"
+  }
+]
