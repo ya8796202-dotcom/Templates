@@ -1,53 +1,165 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>محرر ومُعاينة الأكواد | PWA</title>
-    <link rel="stylesheet" href="style.css">
-    
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2c3e50"> 
-    <meta name="description" content="محرر ومُعاينة أكواد HTML, CSS, JavaScript يعمل كـPWA.">
-    <link rel="icon" href="icons/icon-512x512.png" type="image/png">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0b1220"/>
+  <title>CodeStudio Pro — محرر الأكواد (Monaco)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">CodeStudio Pro <span class="beta">PWA</span></div>
+    <div class="actions">
+      <button id="runBtn">عرض المعاينة</button>
+      <button id="downloadBtn">تحميل مشروع ZIP</button>
+      <button id="installBtn" hidden>تثبيت التطبيق</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="editor-area">
+      <div class="editor-top">
+        <div class="file-tabs" role="tablist" aria-label="Files">
+          <button class="file-tab" data-mode="html" aria-selected="true">index.html</button>
+          <button class="file-tab" data-mode="css">styles.css</button>
+          <button class="file-tab" data-mode="js">app.js</button>
+        </div>
+
+        <div id="editor" class="editor"></div>
+      </div>
+
+      <div class="preview">
+        <div class="preview-toolbar">المعاينة</div>
+        <iframe id="previewFrame" sandbox="allow-scripts allow-same-origin"></iframe>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    تم التطوير بواسطة CodeStudio Pro • يعمل أوفلاين جزئياً كـ PWA
+  </footer>
+
+  <!-- Monaco loader from CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs/loader.js"></script>
+
+  <script>
+    // Initial files
+    const files = {
+      html: {
+        language: 'html',
+        value: `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>معاينة</title>
 </head>
 <body>
-    <header>
-        <h1>Code Editor PWA</h1>
-    </header>
+  <h1>مرحبا في CodeStudio Pro</h1>
+  <p>جرب تعديل HTML, CSS, JS ثم اضغط "عرض المعاينة".</p>
+</body>
+</html>`
+      },
 
-    <main class="editor-container">
-        <div class="code-area">
-            <div class="editor-panel">
-                <h2>HTML</h2>
-                <textarea id="html-code" placeholder="اكتب كود HTML هنا..."></textarea>
-            </div>
-            <div class="editor-panel">
-                <h2>CSS</h2>
-                <textarea id="css-code" placeholder="اكتب كود CSS هنا..."></textarea>
-            </div>
-            <div class="editor-panel">
-                <h2>JavaScript</h2>
-                <textarea id="js-code" placeholder="اكتب كود JavaScript هنا..."></textarea>
-            </div>
-        </div>
+      css: {
+        language: 'css',
+        value: `body { font-family: system-ui, sans-serif; padding:20px; background:#fff; color:#111 }
+h1{color:#1a73e8}`
+      },
 
-        <div class="preview-area">
-            <h2>المعاينة (Output)</h2>
-            <iframe id="preview-frame"></iframe>
-        </div>
-    </main>
+      js: {
+        language: 'javascript',
+        value: `console.log('Hello from preview');`
+      }
+    };
 
-    <script src="script.js"></script>
-    <script>
-        // تسجيل الـService Worker
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(reg => console.log('Service Worker: Registered'))
-                    .catch(err => console.log('Service Worker: Error during registration', err));
-            });
-        }
-    </script>
+    // Monaco Loader
+    require.config({
+      paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.41.0/min/vs' }
+    });
+
+    require(['vs/editor/editor.main'], function () {
+      monaco.editor.setTheme('vs-dark');
+
+      const models = {
+        html: monaco.editor.createModel(files.html.value, files.html.language, monaco.Uri.parse('inmemory://model/index.html')),
+        css: monaco.editor.createModel(files.css.value, files.css.language, monaco.Uri.parse('inmemory://model/styles.css')),
+        js: monaco.editor.createModel(files.js.value, files.js.language, monaco.Uri.parse('inmemory://model/app.js'))
+      };
+
+      const editor = monaco.editor.create(document.getElementById('editor'), {
+        model: models.html,
+        automaticLayout: true,
+        minimap: { enabled: false },
+        fontSize: 14,
+        scrollBeyondLastLine: false
+      });
+
+      document.querySelectorAll('.file-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.file-tab').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          const mode = btn.dataset.mode;
+          editor.setModel(models[mode]);
+        });
+      });
+
+      document.querySelector('.file-tab[data-mode="html"]').classList.add('active');
+
+      const previewFrame = document.getElementById('previewFrame');
+
+      document.getElementById('runBtn').addEventListener('click', () => {
+        const html = models.html.getValue();
+        const css = '<style>' + models.css.getValue() + '</style>';
+        const js = '<script>' + models.js.getValue() + '<\\/script>';
+        const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+        doc.open();
+        doc.write(html + css + js);
+        doc.close();
+      });
+
+      ['html','css','js'].forEach(key=>{
+        const saved = localStorage.getItem('pro_' + key);
+        if (saved) models[key].setValue(saved);
+
+        models[key].onDidChangeContent(()=>{
+          localStorage.setItem('pro_' + key, models[key].getValue());
+        });
+      });
+
+      document.getElementById('downloadBtn').addEventListener('click', ()=> {
+        const blob = new Blob([models.html.getValue()], {type:'text/html'});
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'index.html';
+        a.click();
+        URL.revokeObjectURL(a.href);
+      });
+
+      let deferredPrompt;
+
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installBtn').hidden = false;
+      });
+
+      document.getElementById('installBtn').addEventListener('click', async ()=>{
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        document.getElementById('installBtn').hidden = true;
+      });
+    });
+  </script>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(console.error);
+    }
+  </script>
+
 </body>
 </html>
