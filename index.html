@@ -1,53 +1,115 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Elegant Code Editor</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluent Design Code Editor</title>
   <style>
+    :root {
+      --brand: #2563eb;
+      --bg: #f3f4f6;
+      --card: rgba(255,255,255,0.65); /* شفافية */
+      --text: #111827;
+      --border: rgba(255,255,255,0.3);
+      --radius: 14px;
+      --shadow: 0 8px 32px rgba(0,0,0,0.12);
+      --transition: all 0.35s ease;
+      --blur: 12px;
+    }
+    body[data-theme="dark"] {
+      --bg: #0f172a;
+      --card: rgba(17,24,39,0.55);
+      --text: #e5e7eb;
+      --border: rgba(255,255,255,0.15);
+      --brand: #60a5fa;
+      --shadow: 0 10px 36px rgba(0,0,0,0.35);
+    }
     body {
       margin: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: var(--bg);
+      color: var(--text);
       display: flex;
       flex-direction: column;
       height: 100vh;
-      background: #f5f7fa;
+      transition: var(--transition);
     }
     header {
+      background: var(--card);
+      backdrop-filter: blur(var(--blur)) saturate(180%);
+      color: var(--text);
       padding: 14px 20px;
-      background: #2563eb;
-      color: #fff;
-      font-weight: bold;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--border);
     }
-    header select, header button {
-      margin-left: 10px;
-      padding: 6px 10px;
-      border-radius: 6px;
+    .controls {
+      display: flex;
+      gap: 10px;
+    }
+    select, button {
       border: none;
+      border-radius: var(--radius);
+      padding: 8px 12px;
       font-size: 14px;
+      font-family: 'Segoe UI';
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--card);
+      color: var(--text);
+      backdrop-filter: blur(var(--blur));
+    }
+    button {
+      font-weight: 600;
+    }
+    button:hover {
+      background: var(--brand);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
     }
     main {
       display: flex;
       flex: 1;
+      gap: 16px;
+      padding: 16px;
+      opacity: 1;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+    }
+    body.fade main {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    #editor, #preview {
+      flex: 1;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      transition: var(--transition);
+      background: var(--card);
+      backdrop-filter: blur(var(--blur)) saturate(180%);
+      border: 1px solid var(--border);
     }
     #editor {
-      flex: 1;
-      height: 100%;
+      font-size: 26px; /* خط افتراضي كبير */
     }
     #preview {
-      flex: 1;
       border: none;
-      background: #fff;
+    }
+    #editor:hover, #preview:hover {
+      transform: scale(1.01);
     }
   </style>
 </head>
-<body>
+<body data-theme="light">
   <header>
-    <span>Elegant Code Editor</span>
-    <div>
+    <span>Fluent Design Code Editor</span>
+    <div class="controls">
       <select id="language">
         <option value="html">HTML</option>
         <option value="css">CSS</option>
@@ -57,59 +119,100 @@
         <option value="csharp">C#</option>
         <option value="cpp">C++</option>
       </select>
+      <select id="fontSize">
+        <option value="18">18px</option>
+        <option value="24">24px</option>
+        <option value="26" selected>26px</option>
+        <option value="32">32px</option>
+      </select>
       <button id="run">تشغيل المعاينة</button>
+      <button id="toggleTheme">تبديل الوضع</button>
+      <button id="download">تنزيل الكود</button>
     </div>
   </header>
   <main>
-    <div id="editor"></div>
+    <div id="editor"><h1>مرحبا يا ياسر 👋</h1></div>
     <iframe id="preview"></iframe>
   </main>
 
-  <!-- تحميل Monaco Editor -->
-  <script src="https://cdn.jsdelivr.net/npm/monaco-editor@0.51.0/min/vs/loader.js"></script>
+  <!-- تحميل Ace Editor -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js"></script>
   <script>
-    require.config({ paths: { 'vs': 'https://cdn.jsdelivr.net/npm/monaco-editor@0.51.0/min/vs' } });
-    require(['vs/editor/editor.main'], function () {
-      const editor = monaco.editor.create(document.getElementById('editor'), {
-        value: "<h1>مرحبا يا ياسر 👋</h1>",
-        language: "html",
-        theme: "vs-dark",
-        automaticLayout: true,
-        fontSize: 18,       // خط كبير وواضح
-        lineHeight: 24,     // مسافة أسطر مريحة
-        fontFamily: "Consolas, 'Segoe UI Mono', monospace",
-        minimap: { enabled: true },
-        lineNumbers: "on"
-      });
-
-      const preview = document.getElementById("preview");
-      const runBtn = document.getElementById("run");
-      const langSel = document.getElementById("language");
-
-      // تغيير اللغة
-      langSel.addEventListener("change", () => {
-        const lang = langSel.value;
-        monaco.editor.setModelLanguage(editor.getModel(), lang);
-      });
-
-      // تشغيل المعاينة للغات الويب فقط
-      runBtn.addEventListener("click", () => {
-        const lang = langSel.value;
-        const code = editor.getValue();
-        if(lang === "html"){
-          preview.srcdoc = code;
-        } else if(lang === "css"){
-          preview.srcdoc = `<style>${code}</style><div style="padding:20px"><h2>معاينة CSS</h2><p>هذا مثال لتطبيق CSS.</p></div>`;
-        } else if(lang === "javascript"){
-          preview.srcdoc = `<script>${code}<\/script><div style="padding:20px"><h2>معاينة JavaScript</h2></div>`;
-        } else {
-          preview.srcdoc = `<div style="padding:20px;font-family:Segoe UI"><h3>لا توجد معاينة لهذه اللغة (${lang})</h3><p>يمكنك نسخ الكود وتشغيله في بيئة مناسبة.</p></div>`;
-        }
-      });
-
-      // معاينة أولية
-      preview.srcdoc = editor.getValue();
+    const editor = ace.edit("editor");
+    editor.setTheme("ace/theme/chrome"); // ثيم فاتح افتراضي
+    editor.session.setMode("ace/mode/html");
+    editor.setOptions({
+      fontSize: "26px",
+      showPrintMargin: false,
+      showGutter: true,
+      highlightActiveLine: true
     });
+
+    const preview = document.getElementById("preview");
+    const runBtn = document.getElementById("run");
+    const langSel = document.getElementById("language");
+    const toggleBtn = document.getElementById("toggleTheme");
+    const fontSel = document.getElementById("fontSize");
+    const downloadBtn = document.getElementById("download");
+    const body = document.body;
+
+    // تغيير اللغة
+    langSel.addEventListener("change", () => {
+      const lang = langSel.value;
+      editor.session.setMode("ace/mode/" + lang);
+    });
+
+    // تشغيل المعاينة للغات الويب فقط
+    runBtn.addEventListener("click", () => {
+      const lang = langSel.value;
+      const code = editor.getValue();
+      if(lang === "html"){
+        preview.srcdoc = code;
+      } else if(lang === "css"){
+        preview.srcdoc = `<style>${code}</style><div style="padding:20px"><h2>معاينة CSS</h2></div>`;
+      } else if(lang === "javascript"){
+        preview.srcdoc = `<script>${code}<\/script><div style="padding:20px"><h2>معاينة JavaScript</h2></div>`;
+      } else {
+        preview.srcdoc = `<div style="padding:20px;font-family:Segoe UI"><h3>لا توجد معاينة لهذه اللغة (${lang})</h3><p>انسخ الكود وشغّله في بيئته المناسبة.</p></div>`;
+      }
+    });
+
+    // تبديل الوضع (Light/Dark) مع أنيميشن Fade/Slide
+    toggleBtn.addEventListener("click", () => {
+      body.classList.add("fade");
+      setTimeout(() => {
+        const isDark = body.getAttribute("data-theme") === "dark";
+        body.setAttribute("data-theme", isDark ? "light" : "dark");
+        editor.setTheme(isDark ? "ace/theme/chrome" : "ace/theme/monokai");
+        body.classList.remove("fade");
+      }, 400);
+    });
+
+    // تغيير حجم الخط ديناميكيًا
+    fontSel.addEventListener("change", () => {
+      const size = fontSel.value + "px";
+      editor.setOptions({ fontSize: size });
+    });
+
+    // تنزيل الكود كملف
+    downloadBtn.addEventListener("click", () => {
+      const lang = langSel.value;
+      const code = editor.getValue();
+      const extMap = {
+        html:'html', css:'css', javascript:'js', java:'java', python:'py',
+        csharp:'cs', cpp:'cpp'
+      };
+      const ext = extMap[lang] || 'txt';
+      const blob = new Blob([code], {type:'text/plain;charset=utf-8'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `code.${ext}`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    });
+
+    // معاينة أولية
+    preview.srcdoc = editor.getValue();
   </script>
 </body>
 </html>
