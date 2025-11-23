@@ -1,2 +1,0 @@
-.loader-bar { height:4px; background: linear-gradient(90deg, var(--primary), transparent); animation: load 1.2s infinite; }
-@keyframes load { 0%{transform:translateX(-40%)} 50%{transform:translateX(40%)} 100%{transform:translateX(120%)} }

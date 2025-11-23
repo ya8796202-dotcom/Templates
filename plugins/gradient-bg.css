@@ -1,2 +1,0 @@
-.gradient-bg { background: linear-gradient(120deg, #6c5ce7, #00d4ff); background-size: 200% 200%; animation: shift 14s ease infinite; }
-@keyframes shift { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
