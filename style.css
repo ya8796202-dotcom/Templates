@@ -29,10 +29,7 @@ body{
   border-bottom:1px solid rgba(255,255,255,0.03);
 }
 
-.brand{
-  font-weight:700; 
-  font-size:18px
-}
+.brand{font-weight:700;font-size:18px}
 
 .actions button{
   background:transparent;
@@ -44,10 +41,7 @@ body{
   cursor:pointer;
 }
 
-.container{
-  padding:16px; 
-  flex:1
-}
+.container{padding:16px;flex:1}
 
 .editor-area{
   display:flex;
@@ -86,12 +80,7 @@ body{
   color:var(--accent)
 }
 
-.editor{
-  height:100%; 
-  min-height:240px; 
-  border-radius:8px; 
-  overflow:hidden
-}
+.editor{height:100%;min-height:240px;border-radius:8px;overflow:hidden}
 
 .preview{
   background:var(--card);
@@ -109,9 +98,9 @@ body{
 }
 
 .preview iframe{
-  flex:1; 
-  width:100%; 
-  border:0; 
+  flex:1;
+  width:100%;
+  border:0;
   background:white
 }
 
@@ -126,74 +115,4 @@ body{
 @media (max-width:900px){
   .editor-top{min-height:200px}
   .preview{height:40%}
-}
-/* RESET */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-body {
-  background: #1e1e1e;
-  color: #d4d4d4;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  height: 100vh;
-  display: flex;
-  overflow: hidden;
-}
-
-/* CONTAINER (Editor + Preview) */
-#main {
-  display: flex;
-  width: 100%;
-  height: 100vh;
-}
-
-/* LEFT — Editor Panel */
-#editor {
-  width: 50%;
-  height: 100%;
-  border-right: 3px solid #2d2d2d;
-}
-
-/* RIGHT — Live Preview */
-#preview {
-  width: 50%;
-  height: 100%;
-  background: #111;
-  border-left: 3px solid #2d2d2d;
-}
-
-/* Toolbar */
-#toolbar {
-  width: 100%;
-  background: #252526;
-  color: #fff;
-  padding: 10px;
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  border-bottom: 2px solid #3c3c3c;
-}
-
-button {
-  background: #0e639c;
-  border: none;
-  padding: 7px 14px;
-  border-radius: 5px;
-  color: white;
-  cursor: pointer;
-  font-size: 14px;
-}
-
-button:hover {
-  background: #1177bb;
-}
-
-iframe {
-  width: 100%;
-  height: 100%;
-  background: #1e1e1e;
-  border: none;
 }
