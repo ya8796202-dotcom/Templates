@@ -1,0 +1,30 @@
+[
+  {
+    "id": "base",
+    "name": "قالب أساسي",
+    "desc": "صفحة نظيفة ببنية جاهزة",
+    "thumbnail": "assets/thumbs/base.png",
+    "path": "templates/base/template.json"
+  },
+  {
+    "id": "store",
+    "name": "متجر إلكتروني",
+    "desc": "كروت منتجات + سلة محلية",
+    "thumbnail": "assets/thumbs/store.png",
+    "path": "templates/store/template.json"
+  },
+  {
+    "id": "portfolio",
+    "name": "معرض أعمال",
+    "desc": "كروت مشاريع مع فلتر",
+    "thumbnail": "assets/thumbs/portfolio.png",
+    "path": "templates/portfolio/template.json"
+  },
+  {
+    "id": "blog",
+    "name": "مدونة",
+    "desc": "مشاركات ببطاقات نظيفة",
+    "thumbnail": "assets/thumbs/blog.png",
+    "path": "templates/blog/template.json"
+  }
+]
