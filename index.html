@@ -291,6 +291,15 @@ ${html}
       URL.revokeObjectURL(a.href);
       a.remove();
     });
+
+    
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/Templates/service-worker.js')
+      .then(reg => console.log('SW registered', reg.scope))
+      .catch(err => console.warn('SW registration failed', err));
+  }
+
+
   </script>
 </body>
 </html>
